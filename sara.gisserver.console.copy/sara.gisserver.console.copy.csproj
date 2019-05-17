@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4498F4F6-18FB-49B9-BEFA-EE810F7CA092}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>sara.gisserver.console.copy</RootNamespace>
+    <AssemblyName>sara.gisserver.console.copy</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Commons.dll" />
+    <None Include="CustomOnlineMaps.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="default.sqlite" />
+    <None Include="gdal18.dll" />
+    <None Include="gdalbuildvrt.exe" />
+    <None Include="gdalplugins\gdal_ECW_JP2ECW.dll" />
+    <None Include="gdalplugins\gdal_MrSID.dll" />
+    <None Include="gdal_wrap.dll" />
+    <None Include="license_lgpl.txt" />
+    <None Include="lti_dsdk.dll" />
+    <None Include="lti_lidar_dsdk.dll" />
+    <None Include="msvcp100.dll" />
+    <None Include="msvcr100.dll" />
+    <None Include="NCScnet4.dll" />
+    <None Include="NCSEcw4_RO.dll" />
+    <None Include="NCSUtil4.dll" />
+    <None Include="readme.txt" />
+    <None Include="tbb.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="html\root.html" />
+    <Content Include="images\bullet_black.png" />
+    <Content Include="images\bullet_blue.png" />
+    <Content Include="images\bullet_green.png" />
+    <Content Include="images\bullet_orange.png" />
+    <Content Include="images\bullet_pink.png" />
+    <Content Include="images\bullet_purple.png" />
+    <Content Include="images\bullet_red.png" />
+    <Content Include="images\bullet_yellow.png" />
+    <Content Include="images\clear.png" />
+    <Content Include="images\clearSelect.png" />
+    <Content Include="images\detailAllModeClick.png" />
+    <Content Include="images\detailAllModeScroll.png" />
+    <Content Include="images\EditingEditShape32.png" />
+    <Content Include="images\EditingFreehandTool32.png" />
+    <Content Include="images\EditingLineTool32.png" />
+    <Content Include="images\EditingPolygonTool32.png" />
+    <Content Include="images\EditngArcConstructor32.png" />
+    <Content Include="images\ElementLine32.png" />
+    <Content Include="images\error.png" />
+    <Content Include="images\full.png" />
+    <Content Include="images\GenericBlueLightLeftArrow16.png32.png" />
+    <Content Include="images\GenericBlueLightRightArrow32.png" />
+    <Content Include="images\gototop.jpg" />
+    <Content Include="images\info.png" />
+    <Content Include="images\information.png" />
+    <Content Include="images\jsonformat_collapsed.gif" />
+    <Content Include="images\jsonformat_expanded.gif" />
+    <Content Include="images\layer.png" />
+    <Content Include="images\layer2.png" />
+    <Content Include="images\loading.gif" />
+    <Content Include="images\loading1.gif" />
+    <Content Include="images\location.png" />
+    <Content Include="images\maplayer_act.png" />
+    <Content Include="images\maplayer_cleardraw.png" />
+    <Content Include="images\maplayer_dis.png" />
+    <Content Include="images\maplayer_draw.png" />
+    <Content Include="images\measure-freehandpolygon.png" />
+    <Content Include="images\measure-freehandpolyline.png" />
+    <Content Include="images\measure-line.png" />
+    <Content Include="images\measure-point.png" />
+    <Content Include="images\measure-polyline.png" />
+    <Content Include="images\measure.png" />
+    <Content Include="images\next.png" />
+    <Content Include="images\overview.png" />
+    <Content Include="images\pan.png" />
+    <Content Include="images\pan2.png" />
+    <Content Include="images\Point-BluePin1LargeB.png" />
+    <Content Include="images\Point-GreenPin1LargeB.png" />
+    <Content Include="images\Point-RedPin1LargeB.png" />
+    <Content Include="images\polygon.png" />
+    <Content Include="images\Prev.png" />
+    <Content Include="images\print.png" />
+    <Content Include="images\result.png" />
+    <Content Include="images\ScaleBar32.png" />
+    <Content Include="images\system-title.png" />
+    <Content Include="images\toolbar.png" />
+    <Content Include="images\toolbar2.png" />
+    <Content Include="images\warning.png" />
+    <Content Include="images\zoomin.png" />
+    <Content Include="images\zoomout.png" />
+    <Content Include="images\zoomout2.png" />
+    <Content Include="images\指北针.png" />
+    <Content Include="libfreexl-1.dll" />
+    <Content Include="libgcc_s_dw2-1.dll" />
+    <Content Include="libgeos-3-3-1.dll" />
+    <Content Include="libgeos-3-4-0dev.dll" />
+    <Content Include="libgeos_c-1.dll" />
+    <Content Include="libiconv-2.dll" />
+    <Content Include="libproj-0.dll" />
+    <Content Include="libspatialite-4.dll" />
+    <Content Include="libsqlite3-0.dll" />
+    <Content Include="libstdc++-6.dll" />
+    <Content Include="license_ms-pl.txt" />
+    <Content Include="SQLite.Interop.dll" />
+    <None Include="memcached.exe" />
+    <None Include="msvcr71.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

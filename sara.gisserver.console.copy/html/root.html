@@ -1,0 +1,2951 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <meta charset="utf-8" />
+
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />-->
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>看图工具</title>
+
+    <script src="http://www.tjhmbs.com/sara.resource.library/resource/jquery/jquery.1.9.1.js"></script>
+    <script src="http://www.tjhmbs.com/sara.resource.library/resource/jquery.include/jquery.include.js"></script>
+    <script>
+        var dojoConfig = {
+            paths: {
+                extras: 'http://www.tjhmbs.com/sara.resource.library/resource/arcgis_js_api/sdk/samples/layers_point_clustering/extras'
+            }
+        };
+        $.include({
+            rootip: 'www.tjhmbs.com',
+            ismin: false,
+            file: ['bootstrap', 'common', 'arcgisjsapi39']
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: "ff-tisa-web-pro-1","ff-tisa-web-pro-2","Lucida Grande","Helvetica Neue",Helvetica,Arial,"Hiragino Sans GB","Hiragino Sans GB W3","WenQuanYi Micro Hei",sans-serif;
+        }
+
+        h1, .h1, h2, .h2, h3, .h3, h4, .h4, .lead {
+            font-family: "ff-tisa-web-pro-1","ff-tisa-web-pro-2","Lucida Grande","Helvetica Neue",Helvetica,Arial,"Hiragino Sans GB","Hiragino Sans GB W3","Microsoft YaHei UI","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
+        }
+
+        pre code {
+            background: transparent;
+        }
+
+        @media (min-width: 768px) {
+            .bs-docs-home .bs-social,
+            .bs-docs-home .bs-masthead-links {
+                margin-left: 0;
+            }
+        }
+
+        .bs-docs-section p {
+            line-height: 2;
+        }
+
+            .bs-docs-section p.lead {
+                line-height: 1.4;
+            }
+
+
+        .btn-group {
+            margin: 0px !important;
+        }
+
+        .navbar-button {
+        }
+
+
+            .navbar-button.selected {
+                color: #4695f7;
+            }
+
+        .div-window {
+        }
+
+        .span-layer-visable {
+            font-size: 16px;
+            cursor: pointer;
+            color: #777777;
+            border: solid 1px #ffffff;
+            padding: 3px;
+        }
+
+            .span-layer-visable:hover {
+                background-color: #efefef;
+                border: solid 1px #808080;
+            }
+
+
+        .span-layer-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #777777;
+        }
+
+        .span_toolbar_content {
+            font-size: 15px;
+            cursor: pointer;
+            color: #777777;
+            padding: 3px;
+            border: solid 1px #ffffff;
+        }
+
+            .span_toolbar_content:hover {
+                background-color: #efefef;
+                border: solid 1px #808080;
+            }
+
+            .span_toolbar_content.selected {
+                background-color: #efefef;
+                border: solid 1px #808080;
+            }
+
+        .li-info-title {
+            color: white;
+            cursor: pointer;
+        }
+
+            .li-info-title.selected {
+                color: white !important;
+                font-weight: bold;
+            }
+
+        .li-location-title {
+            color: #777777;
+            cursor: pointer;
+        }
+
+            .li-location-title.selected {
+                color: #777777 !important;
+                font-weight: bold;
+            }
+
+        .div-mesurelog {
+            cursor: pointer;
+        }
+
+        .pagination .selected {
+            color: #f5cbcb;
+        }
+
+        .tbody-location > .selected {
+            background-color: #f5cbcb;
+        }
+
+        .open {
+            background-color: #efefef;
+            border-radius: 8px;
+        }
+
+        .esriPopup {
+            display: none !important;
+        }
+
+        .img-icon {
+            width: 18px;
+            height: 17px;
+        }
+
+        .img-icon-title {
+            width: 28px;
+            height: 28px;
+        }
+
+        .panel-title {
+            height: 30px;
+        }
+
+        .breadcrumb {
+            height: 30px;
+        }
+
+        #table_layerlist .btn.btn-default.selected {
+            background-color: #efefef;
+        }
+
+        #table_layerlist .btn.btn-default {
+            background-color: #ffffff;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function ()
+        {
+
+            //初始化地图
+            dojo.require("esri.map");
+            dojo.require("esri.layers.ArcGISDynamicMapServiceLayer");
+            dojo.require("esri.layers.ArcGISTiledMapServiceLayer");
+
+
+            dojo.require("esri.geometry.Point");
+            //放大缩小前景后景漫游
+            dojo.require("esri.toolbars.navigation");
+            //缩放比例表
+            dojo.require("esri.dijit.Scalebar");
+            //鹰眼
+            dojo.require("esri.dijit.OverviewMap");
+
+            //打印需要的
+            dojo.require("esri.dijit.Print");
+            dojo.require("esri.tasks.PrintTemplate");
+            dojo.require("dojo._base.array");
+
+            //定位
+            dojo.require("esri.tasks.query");
+            dojo.require("esri.tasks.find");
+            //测量
+            dojo.require("esri.tasks.geometry");
+            dojo.require("esri.toolbars.draw");
+
+            dojo.require("esri.dijit.InfoWindow");
+
+            //ClusterLayer必须的类
+            dojo.require("dojo._base.array");
+            dojo.require("extras.ClusterLayer");
+            dojo.require("esri.symbols.SimpleMarkerSymbol");
+            dojo.require("esri.symbols.SimpleFillSymbol");
+            dojo.require("esri.symbols.SimpleLineSymbol");
+            dojo.require("esri.symbols.PictureMarkerSymbol");
+            dojo.require("esri.renderers.ClassBreaksRenderer");
+
+
+            $('#mainbody').css('display', '');
+
+
+            //用dojo的addOnLoad方法初始化地图
+
+            dojo.addOnLoad(mapObj.init);
+        });
+
+        var _blockMessage = null;
+        var _alertMessage = null;
+        var _resultMessage = null;
+        var _confirmMessage = null;
+        var _wkid = 3857;
+
+        var configObj = (function ()
+        {
+            var that = {
+                //渲染图形样式的hashmap
+                _symbolHashMap: null,
+                _pr_config: "",//true、false、null 控制控件 显示、不可点击、隐藏
+                //默认显示区域
+                _startExtent: "",
+                //手绘图形最大面积
+                _drawMapMaxArea: 2000000000.0,
+                _geometryServiceUrl : "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer",
+                //获取当前时间的字符串
+                getCurrentDateTime: function ()
+                {
+                    var date = new Date();
+
+                    return date.Format('yyyyMMddhhmmss');
+                }
+            };
+            return that;
+        })();
+
+        //工具栏
+        var toolbarObj = (function ()
+        {
+            //测量记录的array---
+            var _measureLogArray = [];
+            //添加日志的方法
+            addMeasureLogArray = function (mesureLog)
+            {
+
+                _measureLogArray.push(mesureLog);
+                if (_measureLogArray.length > 10)
+                {
+                    var measureLogId = _measureLogArray[0]["id"];
+                    $('#div_measurelog_' + measureLogId).remove();
+                    var template = [];
+                    $.each(_measureLogArray, function (i, u)
+                    {
+                        if (i == 0)
+                        {
+
+                        }
+                        else
+                        {
+                            template.push(u);
+                        }
+
+                    });
+                    _measureLogArray = template;
+                }
+
+            };
+
+            //清理所需图层
+            var _clearLayerJsonArray = [{ id: 'all', layerid: 'measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer,location1_graphicLayer,location2_graphicLayer,location3_graphicLayer,location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer,locationParm_graphicLayer', },
+                { id: 'measure', layerid: 'measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer' },
+                //{ id: 'location1', layerid: 'location1_graphicLayer' },
+                //{ id: 'location2', layerid: 'location2_graphicLayer' },
+                //{ id: 'location3', layerid: 'location3_graphicLayer' },
+                { id: 'location4', layerid: 'location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer' },
+                //{ id: 'location5', layerid: 'locationParm_graphicLayer' },
+                { id: 'location4_row', layerid: 'location4_search_graphicLayer' },
+
+                { id: 'info', layerid: '' },
+
+            ];
+            var that = {
+
+                //全景
+                btn_zoomfullext_click: function ()
+                {
+                    mapObj._mapControl.setExtent(_startExtent);
+                },
+
+                //放大/缩小/漫游
+                btn_zoom_click: function (operation)
+                {
+
+                    $('#btn_toolbar_measure').removeClass('selected');
+                    $('#btn_toolbar_measure').html('测量<span class="caret"></span>');
+
+                    var $e = $('#btn_toolbar_mouse_' + operation);
+
+                    if ($e.hasClass('selected'))
+                    {
+
+                    }
+                    else
+                    {
+
+                        switch (operation)
+                        {
+                            case "zoomin":
+                                {
+                                    mapObj._navMeasureToolBar.deactivate();
+                                    mapObj._navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
+                                }
+                                break;
+                            case "zoomout":
+                                {
+                                    mapObj._navMeasureToolBar.deactivate();
+                                    mapObj._navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
+                                }
+                                break;
+                            case "pan":
+                                {
+                                    mapObj._navMeasureToolBar.deactivate();
+                                    mapObj._navToolbar.activate(esri.toolbars.Navigation.PAN);
+                                }
+                                break;
+                        }
+
+
+                        $e.parent().children().removeClass('selected');
+                        $e.addClass('selected');
+
+
+
+                    }
+
+                },
+
+                //前景
+                btn_zoomToPrev_click: function ()
+                {
+                    mapObj._navToolbar.zoomToPrevExtent();
+                },
+
+                //后景
+                btn_zoomToNextExtent_click: function ()
+                {
+                    mapObj._navToolbar.zoomToNextExtent();
+                },
+
+                //鹰眼
+                btn_overview_click: function ()
+                {
+                    var $e = $('#btn_navbar_overview');
+
+                    if ($e.hasClass('selected'))
+                    {
+                        mapObj._overviewMapDijit.hide();
+                        $e.removeClass('selected');
+                    }
+                    else
+                    {
+                        mapObj._overviewMapDijit.show();
+                        $e.addClass('selected');
+                    }
+                },
+
+
+
+                //测量
+                btn_measure_click: function (measureType)
+                {
+
+                    //修改放大缩小模式为绘图模式
+                    $('#btn_toolbar_mouse').children().removeClass('selected');
+                    $('#btn_toolbar_measure').addClass('selected');
+                    toolbarObj.btn_toolbar_clear_render_click('measure');
+
+                    switch (measureType)
+                    {
+                        case "point":
+                            $('#btn_toolbar_measure').html('【点】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.POINT);
+                            break;
+                        case "line":
+                            $('#btn_toolbar_measure').html('【直线】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.LINE);
+                            break;
+                        case "polyline":
+                            $('#btn_toolbar_measure').html('【折线】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.POLYLINE);
+                            break;
+                        case "freehandpolyline":
+                            $('#btn_toolbar_measure').html('【曲线】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.FREEHAND_POLYLINE);
+                            break;
+                        case "polygon":
+                            $('#btn_toolbar_measure').html('【面】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.POLYGON);
+                            break;
+                        case "freehandpolygon":
+                            $('#btn_toolbar_measure').html('【任意面】测量中...<span class="caret"></span>');
+                            mapObj._navMeasureToolBar.activate(esri.toolbars.Draw.FREEHAND_POLYGON);
+                            break;
+                    }
+
+                },
+
+                //测量日志 查看图形
+                div_measurelog_click: function (measurelogid)
+                {
+
+
+                    var graphic = null;
+                    var layerid = "";
+                    $.each(_measureLogArray, function (i, u)
+                    {
+                        if (u["id"] == measurelogid)
+                        {
+                            graphic = u["graphic"];
+
+                            layerid = u["layerid"];
+                        }
+                    });
+                    if (graphic != null)
+                    {
+                        //清空指定图层
+                        that.btn_toolbar_clear_render_click('measure');
+
+                        //向指定图层添加图形
+                        mapObj._mapControl.getLayer(layerid).add(graphic);
+                        if (layerid != 'measure_point_graphicLayer')
+                        {
+                            //获取图形的范围
+                            var ext = graphic.geometry.getExtent();
+                            ext = mapObj.setExt(ext);
+                            mapObj._mapControl.setExtent(ext);
+                        }
+                    }
+
+                },
+
+                //清理
+                btn_toolbar_clear_render_click: function (operation)
+                {
+
+
+
+                    if (operation != "" && operation != null)
+                    {
+                        var clearLayerJsonArray = $.grep(_clearLayerJsonArray, function (u, i)
+                        {
+                            return u["id"] == operation;
+
+                        });
+                        clearLayerJsonArray = clearLayerJsonArray[0];
+                        if (clearLayerJsonArray["id"] == "info")
+                        {
+                            $('#div_info_content_result').html('');
+                            $('#div_info').addClass('hidden');
+
+
+                        }
+                        else if (clearLayerJsonArray["id"] == "all")
+                        {
+                            $('#div_info_content_result').html('');
+                            $('#div_info').addClass('hidden');
+
+                            var layerArray = clearLayerJsonArray["layerid"].split(',');
+                            $.each(layerArray, function (i, u)
+                            {
+                                if (u != "")
+                                {
+                                    mapObj._mapControl.getLayer(u).clear();
+                                }
+
+                            });
+                            _measureLogArray = [];
+
+                        }
+                        else if (clearLayerJsonArray["id"] == "location4_row")
+                        {
+                            var layerArray = clearLayerJsonArray["layerid"].split(',');
+                            $.each(layerArray, function (i, u)
+                            {
+                                if (u != "")
+                                {
+                                    mapObj._mapControl.getLayer(u).clear();
+                                }
+                            });
+                            _measureLogArray = [];
+                        }
+                        else
+                        {
+                            var layerArray = clearLayerJsonArray["layerid"].split(',');
+                            $.each(layerArray, function (i, u)
+                            {
+                                if (u != "")
+                                {
+                                    mapObj._mapControl.getLayer(u).clear();
+                                }
+
+                            });
+                        }
+
+
+                    }
+
+                },
+
+                //工具栏
+                initToolbarsMeasure: function (callBackFunction)
+                {
+
+                    //比例尺
+                    var scalebar = new esri.dijit.Scalebar({ map: mapObj._mapControl, scalebarUnit: "metric", attachTo: "bottom-left" });
+
+                    //输出比例尺数值
+                    dojo.connect(mapObj._mapControl, "onZoomEnd", function ()
+                    {
+                        $('#div_scalenumber').html('1/' + parseFloat(mapObj._mapControl.getScale()).toFixed(2))
+                    });
+                    //工具条--前景后景
+                    mapObj._navToolbar = new esri.toolbars.Navigation(mapObj._mapControl);
+                    dojo.connect(mapObj._navToolbar, "onExtentHistoryChange", function ()
+                    {
+                        if (!mapObj._navToolbar.isFirstExtent())
+                        {
+                            $('#btn_toolbar_pre').removeAttr('disabled');
+
+                        }
+                        else
+                        {
+                            $('#btn_toolbar_pre').attr('disabled', 'disabled');
+
+                        }
+
+                        if (!mapObj._navToolbar.isLastExtent())
+                        {
+                            $('#btn_toolbar_next').removeAttr('disabled');
+                        }
+                        else
+                        {
+                            $('#btn_toolbar_next').attr('disabled', 'disabled');
+                        }
+                    });
+
+                    //坐标
+                    dojo.connect(mapObj._mapControl, "onMouseMove", function (evt)
+                    {
+                        var mp = evt.mapPoint;
+                        $('#div_coordinates').html('X：' + parseFloat(mp.x).toFixed(2) + '&nbsp;&nbsp;Y：' + parseFloat(mp.y).toFixed(2));
+                    });
+                    dojo.connect(mapObj._mapControl, "onMouseDrag", function (evt)
+                    {
+                        var mp = evt.mapPoint;
+                        $('#div_coordinates').html('X：' + parseFloat(mp.x).toFixed(2) + '&nbsp;&nbsp;Y：' + parseFloat(mp.y).toFixed(2));
+                    });
+
+                    // 鹰眼
+                    mapObj._overviewMapDijit = new esri.dijit.OverviewMap({
+                        map: mapObj._mapControl,   // 必要的
+                        visible: false,  // 初始化可见,默认为false
+                        attachTo: "bottom-right",   // 默认右上角
+                        width: 150, // 默认值是地图高度的 1/4th
+                        height: 150, // 默认值是地图高度的 1/4th
+                        opacity: .40,    // 透明度 默认0.5
+                        maximizeButton: false,   // 最大化,最小化按钮,默认false
+                        expandFactor: 3,    //概览地图和总览图上显示的程度矩形的大小之间的比例。默认值是2,这意味着概览地图将至少是两倍的大小的程度矩形。
+                        color: "red"    // 默认颜色为#000000
+                    });
+                    mapObj._overviewMapDijit.startup();   // 开启
+
+                    //测量
+
+
+                    mapObj._navMeasureToolBar = new esri.toolbars.Draw(mapObj._mapControl);
+                    dojo.connect(mapObj._navMeasureToolBar, "onDrawEnd", function (geometry)
+                    {
+                        //更加类型设置显示样式
+                        var symbol = null;
+                        var graphic = null;
+                        var params = null;
+                        var layer = null;
+
+                        switch (geometry.type)
+                        {
+
+                            case "point":
+                                {
+
+                                    //===============================================
+
+                                    //处理空间坐标系
+                                    var params = new esri.tasks.ProjectParameters();
+                                    params.geometries = [geometry];
+                                    params.outSR = new esri.SpatialReference({ "wkid": _wkid });
+                                    mapObj._geometryService.project(params, function (geometries)
+                                    {
+
+                                        //设置样式
+                                        layer = mapObj._mapControl.getLayer('measure_point_graphicLayer');
+                                        graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get('measure_point_symbol'));
+                                        layer.add(graphic);
+                                        //存储数组
+                                        var id = configObj.getCurrentDateTime();
+                                        addMeasureLogArray({ id: id, graphic: graphic, layerid: 'measure_point_graphicLayer' });
+                                        //返回漫游操作
+                                        toolbarObj.btn_zoom_click('pan');
+
+                                        //呈现内容
+                                        var resultHtml = '<div onclick="toolbarObj.div_measurelog_click(' + id + ')" id="div_measurelog_' + id + '" class="alert alert-success  div-mesurelog">';
+                                        resultHtml += '点测量结果--X坐标：' + parseFloat(geometry.x).toFixed(2) + '&nbsp;&nbsp;Y坐标：' + parseFloat(geometry.y).toFixed(2);
+                                        resultHtml += '</div>';
+                                        $('#div_info_content_result').append(resultHtml);
+                                        //滚动条到最下边
+                                        $('#div_info_content').scrollTop($('#div_info_content')[0].scrollHeight);
+
+
+                                        //打开显示窗口
+                                        mapObj.btn_common_navbar_click('info', null, true);
+                                        mapObj.btn_common_tab_click('info', 'result')
+
+                                    }, function (error)
+                                    {
+                                        _alertMessage.show(error.message, 'error');
+                                    });
+                                }
+
+
+                                break;
+                            case "line":
+                            case "polyline":
+                            case "freehand_polyline":
+
+                                {
+
+
+                                    //===============================================
+
+                                    //处理空间坐标系
+                                    var params = new esri.tasks.ProjectParameters();
+                                    params.geometries = [geometry];
+                                    params.outSR = new esri.SpatialReference({ "wkid": _wkid });
+                                    mapObj._geometryService.project(params, function (geometries)
+                                    {
+
+                                        if (geometries.length > 0)
+                                        {
+                                            switch (geometries[0].type)
+                                            {
+                                                case "line":
+                                                case "polyline":
+                                                case "freehand_polyline":
+                                                    {
+
+                                                        var lengthParams = new esri.tasks.LengthsParameters();
+                                                        lengthParams.polylines = geometries;
+                                                        lengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
+                                                        lengthParams.geodesic = true;
+
+                                                        mapObj._geometryService.lengths(lengthParams, function (result)
+                                                        {
+                                                            //存储数组
+                                                            var id = configObj.getCurrentDateTime();
+                                                            addMeasureLogArray({ id: id, graphic: graphic, layerid: 'measure_line_graphicLayer' });
+
+
+                                                            var resultHtml = '<div onclick="toolbarObj.div_measurelog_click(' + id + ')" id="div_measurelog_' + id + '" class="alert alert-warning  div-mesurelog">';
+                                                            resultHtml += '线测量结果--距离：' + parseFloat(result.lengths[0]).toFixed(2) + '米' + '(约合：' + formatArea(result.lengths[0], 2, 'length') + ')';
+                                                            resultHtml += '</div>';
+                                                            $('#div_info_content_result').append(resultHtml);
+                                                            //滚动条到最下边
+                                                            $('#div_info_content').scrollTop($('#div_info_content')[0].scrollHeight);
+
+                                                            //返回漫游操作
+                                                            toolbarObj.btn_zoom_click('pan');
+
+                                                            //呈现内容
+                                                            mapObj.btn_common_navbar_click('info', null, true);
+                                                            mapObj.btn_common_tab_click('info', 'result')
+
+                                                        }, function (error)
+                                                        {
+                                                            _alertMessage.show(error.message, 'error');
+                                                        });
+                                                    }
+
+                                                    break;
+                                            }
+
+                                        }
+
+
+                                    }, function (error)
+                                    {
+                                        _alertMessage.show(error.message, 'error');
+                                    });
+
+                                }
+
+
+
+                                break;
+                            case "polygon":
+                            case "freehand_polygon":
+
+
+                                {
+
+
+                                    //-----------------------------------------------
+
+                                    //$.ajax({
+                                    //    // type: "GET",
+                                    //    url: "http://127.0.0.1:7081/saragisserver/rest/services/gettest?name=" + JSON.stringify(geometry),
+
+                                    //    dataType: 'jsonp',
+                                    //    success: function (data)
+                                    //    {
+
+                                    //        //设置样式
+                                    //        var layer111 = mapObj._mapControl.getLayer('measure_line_graphicLayer');
+                                    //        $.each(data, function (i, u)
+                                    //        {
+                                    //            var geo = JSON.parse(data[i]["geo"]);
+
+
+                                    //            var graphic = new esri.Graphic(geo, configObj._symbolHashMap.get('measure_line_symbol'));
+                                    //            layer111.add(graphic);
+                                    //        });
+
+
+                                    //    },
+                                    //    error: function (error)
+                                    //    {
+                                    //
+                                    //    },
+                                    //});
+
+                                    //===============================================
+                                    var _geometryServiceUrl = "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer";
+                                    mapObj._geometryService = new esri.tasks.GeometryService(_geometryServiceUrl);
+
+                                    //处理空间坐标系
+                                    var params = new esri.tasks.ProjectParameters();
+                                    params.geometries = [geometry];
+                                    params.outSR = new esri.SpatialReference({ "wkid": _wkid });
+                                    mapObj._geometryService.project(params, function (geometries)
+                                    {
+
+                                        if (geometries.length > 0)
+                                        {
+                                            switch (geometries[0].type)
+                                            {
+                                                case "polygon":
+                                                case "freehand_polygon":
+                                                    {
+
+                                                        mapObj._geometryService.simplify(geometries, function (simplifiedGeometries)
+                                                        {
+
+                                                            var areasAndLengthParams = new esri.tasks.AreasAndLengthsParameters();
+                                                            areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
+                                                            areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_METER;
+                                                            areasAndLengthParams.polygons = simplifiedGeometries;
+                                                            mapObj._geometryService.areasAndLengths(areasAndLengthParams, function (result)
+                                                            {
+
+                                                                //设置样式
+                                                                layer = mapObj._mapControl.getLayer('measure_polygon_graphicLayer');
+                                                                graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get('measure_polygon_symbol'));
+                                                                layer.add(graphic);
+
+                                                                //返回漫游操作
+                                                                toolbarObj.btn_zoom_click('pan');
+
+                                                                //存储数组
+                                                                var id = configObj.getCurrentDateTime();
+                                                                addMeasureLogArray({ id: id, graphic: graphic, layerid: 'measure_polygon_graphicLayer' });
+
+                                                                var resultHtml = '<div onclick="toolbarObj.div_measurelog_click(' + id + ')" id="div_measurelog_' + id + '" class="alert alert-info div-mesurelog">';
+                                                                resultHtml += "面积：" + parseFloat(result.areas[0]).toFixed(2) + "平方米" + '(约合：' + formatArea(result.areas[0], 2, 'area') + ')';
+                                                                resultHtml += "&nbsp;&nbsp;&nbsp;&nbsp;长度：" + parseFloat(result.lengths[0]).toFixed(2) + "米" + '(约合：' + formatArea(result.lengths[0], 2, 'length') + ')';
+                                                                resultHtml += '</div>';
+                                                                $('#div_info_content_result').append(resultHtml);
+                                                                //滚动条到最下边
+                                                                $('#div_info_content').scrollTop($('#div_info_content')[0].scrollHeight);
+
+
+                                                                //返回漫游操作
+                                                                toolbarObj.btn_zoom_click('pan');
+
+
+                                                                //呈现内容
+                                                                mapObj.btn_common_navbar_click('info', null, true);
+                                                                mapObj.btn_common_tab_click('info', 'result');
+
+                                                            }, function (error)
+                                                            {
+                                                                _alertMessage.show(error.message, 'error');
+                                                            });
+                                                        }, function (error)
+                                                        {
+                                                            _alertMessage.show(error.message, 'error');
+                                                        });
+                                                    }
+
+                                                    break;
+                                            }
+
+                                        }
+
+
+                                    }, function (error)
+                                    {
+                                        _alertMessage.show(error.message, 'error');
+                                    });
+
+                                    //$.ajax({
+                                    //    url: "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer/project?f=json&outSR=" + _wkid + "&inSR=" + _wkid + "&geometries=" + JSON.stringify(geometry),
+                                    //    dataType: 'jsonp',
+                                    //    success: function (data)
+                                    //    {
+                                    //
+                                    //    },
+                                    //    error: function (error)
+                                    //    {
+                                    //
+                                    //    },
+                                    //});
+
+                                    ////===============gettest
+                                    ////{"type":"polygon","rings":[[[13002712.56877865,4798901.22519968],[13010356.271607166,4799512.721425961],[13011579.26405973,4791257.522371163],[13002712.56877865,4791257.522371163],[13002712.56877865,4798901.22519968]]],"_ring":0,"spatialReference":{"wkid":3857},"_centroid":null,"_extent":null}
+                                    //$.ajax({
+                                    //    // type: "GET",
+                                    //    url: "http://127.0.0.1:7081/saragisserver/rest/services/gettest?name=" + JSON.stringify(geometry),
+                                    //    // data: dataJsonString,
+                                    //    dataType: 'jsonp',
+                                    //    success: function (data) {
+                                    //
+
+                                    //    },
+                                    //    error: function (error) {
+                                    //
+                                    //    },
+                                    //});
+                                }
+
+
+
+
+
+
+
+                                break;
+                        }
+                    });
+
+                    callBackFunction.success();
+
+
+                },
+
+            };
+            return that;
+        })();
+
+        //图层控制
+        var layerObj = (function ()
+        {
+
+            var that = {
+                //图层设置显示情况
+                btn_viewLayer_click: function (layerid)
+                {
+                    var $e = $('#btn_navbar_overview_' + layerid + '');
+
+                    if ($e.hasClass('glyphicon-eye-open'))
+                    {
+                        $e.removeClass('glyphicon-eye-open');
+                        $e.addClass('glyphicon-eye-close');
+
+                        if (typeof mapObj._mapControl.getLayer(layerid) != 'undefined')
+                        {
+                            mapObj._mapControl.getLayer(layerid).hide();
+
+                            var btnOpactiy = $($e.parent().parent().children()[2]).find('.btn-opacity');
+                            if (btnOpactiy.length > 0)
+                            {
+                                var $btnop = $(btnOpactiy[0]);
+
+                                $btnop.children().attr('disabled', 'disabled');
+
+                            }
+
+                        }
+
+                    }
+                    else
+                    {
+                        $e.addClass('glyphicon-eye-open');
+                        $e.removeClass('glyphicon-eye-close');
+                        if (typeof mapObj._mapControl.getLayer(layerid) != 'undefined')
+                        {
+                            mapObj._mapControl.getLayer(layerid).show();
+
+                            var btnOpactiy = $($e.parent().parent().children()[2]).find('.btn-opacity');
+                            if (btnOpactiy.length > 0)
+                            {
+                                var $btnop = $(btnOpactiy[0]);
+                                $btnop.children().removeAttr('disabled');
+
+                            }
+                        }
+
+                    }
+
+                },
+
+                //图层设置透明度
+                btn_opacityLayer_click: function (layerid, opacity)
+                {
+
+                    var $e = $('#btn_opacityLayer_' + layerid + '_' + opacity);
+
+                    if ($e.hasClass('selected'))
+                    {
+
+                    }
+                    else
+                    {
+                        mapObj._mapControl.getLayer(layerid).setOpacity(opacity / 100);
+                        $e.parent().children().removeClass('selected');
+                        $e.addClass('selected');
+                    }
+
+                },
+
+                //图层控制 拼html
+                initLayerControl: function (layerConfigJsonArray, callBackFunction)
+                {
+                    var table_layerlistHtml = '';
+                    $.each(layerConfigJsonArray, function (i, u)
+                    {
+                        table_layerlistHtml += ' <tr style="height:40px;"> ';
+                        table_layerlistHtml += '<td> ';
+                        var disableStr = 'disabled';
+                        if (layerConfigJsonArray[i].f_visible == 'true')
+                        {
+                            disableStr = '';
+                            table_layerlistHtml += '<span id="btn_navbar_overview_' + layerConfigJsonArray[i].f_id + '" onclick="layerObj.btn_viewLayer_click(\'' + layerConfigJsonArray[i].f_id + '\');" class="glyphicon glyphicon-eye-open span-layer-visable"></span> ';
+                        }
+                        else
+                        {
+                            table_layerlistHtml += '<span id="btn_navbar_overview_' + layerConfigJsonArray[i].f_id + '" onclick="layerObj.btn_viewLayer_click(\'' + layerConfigJsonArray[i].f_id + '\');" class="glyphicon glyphicon-eye-close span-layer-visable"></span> ';
+                        }
+
+                        table_layerlistHtml += '</td> ';
+                        table_layerlistHtml += '<td style="padding-top: 0px;"><span class="span-layer-name">' + layerConfigJsonArray[i].f_description;
+                        if (layerConfigJsonArray[i].f_value1 != "0" && layerConfigJsonArray[i].f_value1 != "")
+                        {
+                            table_layerlistHtml += '/' + layerConfigJsonArray[i].f_value1;
+                        }
+
+                        table_layerlistHtml += '</span></td> ';
+                        table_layerlistHtml += '<td> ';
+                        table_layerlistHtml += '<div class="btn-group btn-group-xs btn-opacity"> ';
+                        if (layerConfigJsonArray[i].f_opacity == '30')
+                        {
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_30" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'30\');" class="btn btn-default selected">30%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_60" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'60\');" class="btn btn-default">60%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_100" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'100\');" class="btn btn-default">100%</button> ';
+                        }
+                        else if (layerConfigJsonArray[i].f_opacity == '60')
+                        {
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_30" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'30\');" class="btn btn-default">30%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_60" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'60\');" class="btn btn-default selected">60%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_100" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'100\');" class="btn btn-default">100%</button> ';
+                        }
+                        else if (layerConfigJsonArray[i].f_opacity == '100')
+                        {
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_30" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'30\');" class="btn btn-default">30%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_60" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'60\');" class="btn btn-default">60%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_100" type="button" ' + disableStr + '  onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'100\');" class="btn btn-default selected">100%</button> ';
+                        }
+                        else
+                        {
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_30" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'30\');" class="btn btn-default">30%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_60" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'60\');" class="btn btn-default">60%</button> ';
+                            table_layerlistHtml += '<button id="btn_opacityLayer_' + layerConfigJsonArray[i].f_id + '_100" type="button" ' + disableStr + ' onclick="layerObj.btn_opacityLayer_click(\'' + layerConfigJsonArray[i].f_id + '\', \'100\');" class="btn btn-default">100%</button> ';
+                        }
+
+                        table_layerlistHtml += '</div> ';
+                        table_layerlistHtml += '</td> ';
+                        table_layerlistHtml += ' </tr> ';
+
+                    });
+                    $('#table_layerlist').html(table_layerlistHtml);
+
+                    callBackFunction.success();
+                },
+
+            }
+            return that;
+        })();
+
+
+
+        //查询定位obj
+        var locationObj = (function ()
+        {
+            //上一个被点亮的Graphic--location4中用到的,记录上一个图形
+            var _lastHightLightGraphic = null;
+
+            //绘图查询所需要的JsonArray
+            var _location4JsonArray = [{
+                id: "historygd",
+                //开始绘图的按钮
+                ui_btn_darwid: "btn_drawStart",
+
+                //查询的图层
+                gis_url: "http://127.0.0.1:7081/saragisserver/rest/services/HistoryGD/MapServer/0",
+                //查询到的图形的业务属性关联主键
+                gis_shipidField: "SHP_ID",
+                gis_whereString: "",
+
+                //=============query部分================
+                //ui_inputContainer: "",
+                ui_tableContainer: 'table_location_4_historygd', //查询结果列表table
+                ui_tableFields: ["xzqy", "xmmc", "dwmc", "lrr", "xmlx"],
+                ui_pageContainer: 'page_location_4_historygd',
+                ui_pageClickFunctionName: "commonBindTable",
+                ui_itemClickFunctionName: "commonSelectTableRow",
+
+                //=====这两个是必须用的！！
+                data_url: configObj._commonserviceurl,
+                data_url_function: 'GetCommonData',//原来缺少的
+                data_databaseNameString: 'GD_DataBaseConnectionString',
+                data_tableNameString: 'tbl_maintable',
+                data_whereString: 'shpid in ({gis_shipidField})',
+                data_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
+                data_orderByString: '',
+                data_shipidField: "shpid",
+                data_pagetSize: 10,
+
+                //============search部分的
+                data_search_url: configObj._commonserviceurl,
+                data_search_url_function: 'GetCommonData',
+                data_search_databaseNameString: 'GD_DataBaseConnectionString',
+                data_search_tableNameString: 'tbl_maintable',
+                data_search_whereString: 'shpid = {gis_shipidField}',
+                data_search_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
+                data_search_orderByString: '',
+                data_search_render: [
+                    { text: "shpid", field: "shpid" },
+                    { text: "项目名称", field: "xmmc" },
+                    { text: "行政区域", field: "xzqy" },
+                    { text: "行政区域ID", field: "xzqyid" },
+                    { text: "单位名称", field: "dwmc" },
+                    //{ text: "录入人", field: "lrr" },
+                    { text: "录入日期", field: "lrrq" },
+                    { text: "备注", field: "bz" },
+                    { text: "项目类型", field: "xmlx" }
+
+                ],
+                ui_search_renderContainer: 'div_info_content_query', //装载查询结果的div info
+
+
+                //=============3个图层4中样式
+                gis_symbol_draw: 'location4_draw_symbol',//画完图
+                gis_symbol_search: 'location4_search_symbol',//定位图形
+                gis_symbol_searchselected: 'location4_searchselected_symbol',//点击图块
+                gis_symbol_query: 'location4_query_symbol',
+
+                gis_layerid_draw: 'location4_draw_graphicLayer',//画完图
+                gis_layerid_search: 'location4_search_graphicLayer',//定位图形
+                gis_layerid_query: 'location4_query_graphicLayer',
+
+            }];
+
+            //==================通用方法  查询 列表
+            commonBindTable = function (configJsonString, operation, shpids, pageindex)
+            {
+
+                var configJson = (new Function("", "return " + configJsonString.replaceAll('`', '"').replaceAll('*', '\'')))();
+
+                if (configJson.length > 0)
+                {
+                    configJson = configJson[0];
+                    var data_whereString = '';
+
+                    data_whereString = configJson["data_whereString"].replaceAll('{gis_shipidField}', shpids);
+
+                    //根据input的值拼where语句
+                    if (configJson["ui_inputContainer"] != "")
+                    {
+                        var text = $('#' + configJson["ui_inputContainer"] + '').val();
+                        if (text != "")
+                        {
+                            data_whereString = data_whereString.replaceAll('{ui_inputContainer}', text);
+                        }
+                    }
+
+                    if (configJson["id"] == "location3_historygd" && configJson["gis_whereString"] != "")
+                    {
+                        data_whereString += configJson["gis_whereString"];
+                    }
+
+
+                    //图层配置
+                    var data = {
+                        databaseNameString: configJson["data_databaseNameString"],
+                        tableNameString: configJson["data_tableNameString"],
+                        whereString: data_whereString,
+                        columnsString: configJson["data_columnsString"],
+                        orderByString: configJson["data_orderByString"],
+                        pageSizeString: configJson["data_pagetSize"],
+                        pageIndexString: pageindex,
+
+                    }
+
+                    doAjaxFunction(configJson["data_url"], configJson["data_url_function"], data, {
+                        success: function (message)
+                        {
+                            var messagejson = (new Function("", "return " + message))();
+
+                            var tableHtmlStr = '';
+                            $.each(messagejson.rows, function (i, u)
+                            {
+                                tableHtmlStr += '<tr style="height:30px;"> ';
+
+                                var rendFieldArray = configJson["ui_tableFields"];
+                                $.each(rendFieldArray, function (ii, uu)
+                                {
+                                    tableHtmlStr += '<td style="padding-top: 10px;"><span class="span-layer-name">' + u[rendFieldArray[ii]] + '</span></td> ';
+                                });
+
+                                tableHtmlStr += '<td> '
+                                var configJsonStr = JSON.stringify(configJson).formatString2();
+                                tableHtmlStr += '<span id="' + configJson["ui_tableContainer"] + '_sp_' + u[configJson["data_shipidField"]] + '" class="glyphicon glyphicon-eye-open span-layer-visable" onclick="' + configJson["ui_itemClickFunctionName"] + '(\'' + u[configJson["data_shipidField"]] + '\',\'' + configJsonStr + '\')"></span> ';
+
+                                tableHtmlStr += '</td> ';
+                                tableHtmlStr += '</tr> ';
+
+                            });
+
+                            $('#' + configJson["ui_tableContainer"]).html(tableHtmlStr);
+
+                            var total = parseInt(messagejson.total);
+                            var pagecount = parseInt(total / configJson["data_pagetSize"]);
+                            var count2 = total % configJson["data_pagetSize"];
+                            if (count2 > 0)
+                            {
+                                pagecount += 1;
+                            }
+                            var pagetHtmlStr = '';
+                            //总页数大于7
+                            if (pagecount > 7)
+                            {
+                                if (pageindex >= 4 && pagecount - pageindex >= 3)
+                                {
+                                    var prev = pageindex - 1;
+                                    var next = Number(pageindex) + 1;
+                                    //如果是4的时候
+                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
+                                    pagetHtmlStr += '<li><a>...</a></li>';
+
+                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + prev + '\')" >' + prev + '</a></li>';
+                                    pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '*').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
+                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + next + '\')" >' + next + '</a></li>';
+                                    pagetHtmlStr += '<li><a>...</a></li>';
+                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+                                }
+                                else if (pageindex < 4)
+                                {
+                                    if (pageindex == 1)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
+                                    }
+                                    if (pageindex == 2)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
+                                    }
+
+                                    if (pageindex == 3)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
+                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'4\')" >4</a></li>';
+
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
+                                    }
+
+                                    pagetHtmlStr += '<li><a>...</a></li>';
+                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+                                }
+                                else if (pagecount - pageindex < 3)
+                                {
+                                    //-----------
+
+                                    if (pageindex == 1)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
+                                    }
+                                    if (pageindex == 2)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
+                                    }
+
+                                    if (pageindex == 3)
+                                    {
+                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
+                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'4\')" >4</a></li>';
+
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
+                                    }
+                                    if (pagecount - pageindex == 2)
+                                    {
+                                        pagetHtmlStr += '<li><a>...</a></li>';
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pageindex - 1) + '\')" >' + (pageindex - 1) + '</a></li>';
+
+                                        pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
+
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                                    }
+                                    else if (pagecount - pageindex == 1)
+                                    {
+                                        pagetHtmlStr += '<li><a>...</a></li>';
+
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
+
+                                        pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a>...</a></li>';
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
+
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+
+                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                                    }
+
+                                }
+
+                            }
+                            else
+                            {
+                                for (var i = 1; i <= pagecount; i++)
+                                {
+                                    if (i.toString() == pageindex)
+                                    {
+                                        pagetHtmlStr += '<li><a class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + i + '\')" >' + i + '</a></li>';
+                                    }
+                                    else
+                                    {
+                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + i + '\')" >' + i + '</a></li>';
+                                    }
+
+                                }
+                            }
+
+                            $('#' + configJson["ui_pageContainer"]).html(pagetHtmlStr);
+
+
+                        },
+                        fail: function (message)
+                        {
+                            _blockMessage.show(message, 'warning');
+
+                        }
+                    });
+                }
+
+            };
+
+
+            commonSelectTableRow = function (shpid, configJsonStr)
+            {
+                var configJson = (new Function("", "return " + configJsonStr.returnString2()))();
+
+                //设置选中效果
+                var $e = $('#' + configJson["ui_tableContainer"] + '_sp_' + shpid);
+                var $tr = $e.parent().parent();
+                var $tbody = $tr.parent();
+                $tbody.children().removeClass('selected');
+                $tr.addClass('selected');
+
+                //根据jsonarr的id判断需要清理的图层,绘图定位时显示底部信息，并清空上次定位
+                var operation = "";
+                switch (configJson["id"])
+                {
+                    case "location3_historygd":
+                        operation = "location3";
+                        break;
+                    case "historygd":
+                        operation = "location4_row";
+                        //图层配置---点击图片上---应该使用新加的json 可查询不同的表和字段
+                        var data = {
+                            databaseNameString: configJson["data_search_databaseNameString"],
+                            tableNameString: configJson["data_search_tableNameString"],
+                            whereString: configJson["data_search_whereString"].replaceAll('{gis_shipidField}', '\'' + shpid + '\''),
+                            columnsString: configJson["data_search_columnsString"],
+                            orderByString: configJson["data_search_orderByString"],
+                            pageSizeString: "", //不需要分页
+                            pageIndexString: "",
+                        };
+                        doAjaxFunction(configJson["data_search_url"], configJson["data_search_url_function"], data, {
+                            success: function (message)
+                            {
+                                // data_search_renderContainer  循环取
+                                var messagejson = (new Function("", "return " + message))();
+                                if (messagejson.rows.length > 0)
+                                {
+                                    messagejson = messagejson.rows[0]
+                                    var render = configJson["data_search_render"];
+                                    //呈现内容
+                                    var resultHtml = '<div class="alert alert-success row">';
+                                    $.each(render, function (i, u)
+                                    {
+                                        if (render[i]["text"] == "项目名称")
+                                        {
+                                            resultHtml += '<div class="col-xs-4"><a  style=" cursor:pointer;" onclick="infoObj.btn_xmmc_click(\'gd\', \'' + shpid + '\');"><u>';
+                                            resultHtml += '<strong>' + render[i]["text"] + '：' + '<strong>';
+                                            resultHtml += messagejson[render[i]["field"]];
+                                            resultHtml += '</u></a></div>';
+                                        }
+                                        else
+                                        {
+                                            resultHtml += '<div class="col-xs-4">';
+                                            resultHtml += '<strong>' + render[i]["text"] + '：' + '<strong>';
+                                            resultHtml += messagejson[render[i]["field"]];
+                                            resultHtml += '</div>';
+                                        }
+                                    })
+                                    resultHtml += '</div>';
+                                    $('#' + configJson["ui_search_renderContainer"]).html(resultHtml);
+                                    //打开显示窗口
+                                    mapObj.btn_common_navbar_click('info', null, true);
+                                    mapObj.btn_common_tab_click('info', 'query')
+                                }
+                            },
+                            fail: function (message)
+                            {
+                                _blockMessage.show('GetCommonData执行失败<br/>' + message, 'fail');
+                            }
+                        }); break;
+                }
+
+                toolbarObj.btn_toolbar_clear_render_click(operation);
+
+                //实例化QueryTask,查询图层2,也就是States图层
+                var queryTask = new esri.tasks.QueryTask(configObj.addClientTokenToMapURL('' + configJson["gis_url"]));
+                //查询参数
+                var query = new esri.tasks.Query();
+                //需要返回Geometry
+                query.returnGeometry = true;
+                //需要返回的字段
+                query.outFields = [configJson["gis_shipidField"]];
+                //查询条件
+                query.where = "" + configJson["gis_shipidField"] + " = '" + shpid + "'";//应该采用json中的关键字
+
+                //进行查询,完成后调用showResults方法
+                queryTask.execute(query, function (results)
+                {
+                    var features = results.features;
+
+                    if (features.length > 0)
+                    {
+                        var ext = new esri.geometry.Extent();
+                        $.each(features, function (i, u)
+                        {
+
+                            var feature = features[i];
+                            var geometry = feature["geometry"];
+
+                            graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get(configJson["gis_symbol_search"]));
+                            mapObj._mapControl.getLayer(configJson["gis_layerid_search"]).add(graphic);
+
+
+                            if (i == 0)
+                            {
+                                ext = graphic.geometry.getExtent();
+                            }
+                            else
+                            {
+                                ext = ext.union(graphic.geometry.getExtent());
+                            }
+                        });
+
+                        //设置地图视图范围
+                        ext = mapObj.setExt(ext);
+                        mapObj._mapControl.setExtent(ext);
+                    }
+
+                }, function (error)
+                {
+                    _alertMessage.show(error.message, 'error');
+
+                });
+            };
+
+
+            //递归添加Graphic 合并图形
+            AddGraphics = function (location4Json, shpidArray, i, geometryHashMap, callBackFunction)
+            {
+
+                if (shpidArray.length - 1 >= i)
+                {
+                    mapObj._geometryService.union(geometryHashMap.get(shpidArray[i]), function (geometry)
+                    {
+                        var currentGraphics = new esri.Graphic();
+                        currentGraphics.geometry = geometry;
+                        currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
+
+                        var layer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
+                        layer.add(currentGraphics);
+                        var shpid = location4Json["gis_shipidField"];
+                        currentGraphics.setAttributes({ shpid: shpidArray[i] });
+
+
+                        AddGraphics(location4Json, shpidArray, i + 1, geometryHashMap, callBackFunction);
+
+                        currentGraphics = null;
+
+                    }, function (error)
+                    {
+                        _alertMessage.show(error.message, 'error');
+                    });
+                }
+                else
+                {
+                    callBackFunction.success();
+                }
+            };
+
+            var that = {
+
+                //坐标定位
+                li_location_1_click: function (zoom)
+                {
+                    var x = $('#input_loaction_1_x').val();
+                    var y = $('#input_loaction_1_y').val();
+
+
+                    if (x != '' && y != '')
+                    {
+                        var xNumber = Number(x);
+                        var yNumber = Number(y);
+                        var zoomNumber = Number(zoom);
+                        var xmin = xNumber - zoomNumber;
+                        var ymin = yNumber - zoomNumber;
+                        var xmax = xNumber + zoomNumber;
+                        var ymax = yNumber + zoomNumber;
+
+                        var geometry = new esri.geometry.Point(xNumber, yNumber, new esri.SpatialReference({ wkid: _wkid }));
+
+                        graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get('location1_symbol'));
+
+                        mapObj._mapControl.getLayer('location1_graphicLayer').add(graphic);
+
+
+                        var ext = new esri.geometry.Extent(xmin, ymin, xmax, ymax, new esri.SpatialReference({ wkid: _wkid }));
+
+                        mapObj._mapControl.setExtent(ext);
+                    }
+                },
+
+
+                //图层查询--绘画
+                li_location_4_click: function (operation)
+                {
+
+                    toolbarObj.btn_toolbar_clear_render_click('location4');
+
+                    var _location4Json = $.grep(_location4JsonArray, function (u, i)
+                    {
+                        return u["id"] == operation;
+                    });
+
+                    if (_location4Json.length > 0)
+                    {
+                        var location4Json = _location4Json[0];
+                        $('#' + location4Json["ui_btn_darwid"]).addClass('hidden');
+                        $('#div_location_4_drawing').removeClass('hidden');
+
+                        mapObj.btn_common_navbar_click("layer", null, false);
+                        mapObj.btn_common_navbar_click("toolbar", null, false);
+                        mapObj.btn_common_navbar_click("info", null, false);
+
+                        mapObj._drawBar = new esri.toolbars.Draw(mapObj._mapControl);
+                        mapObj._drawBarHandler = dojo.connect(mapObj._drawBar, "onDrawEnd", function (geometry)
+                        {
+                            //处理空间坐标系
+                            var params = new esri.tasks.ProjectParameters();
+                            params.geometries = [geometry];
+                            params.outSR = new esri.SpatialReference({ "wkid": 4548 });
+
+                            mapObj._geometryService.project(params, function (geometries)
+                            {
+
+                                if (geometries.length > 0)
+                                {
+                                    if (geometries[0].type == 'polygon' || geometries[0].type == 'freehand_polygon')
+                                    {
+                                        //对绘制的图形进行简单化（容错）
+                                        var areasAndLengthParams = new esri.tasks.AreasAndLengthsParameters();
+                                        areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
+                                        areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_METER;
+                                        mapObj._geometryService.simplify(geometries, function (simplifiedGeometries)
+                                        {
+                                            //计算面积
+                                            areasAndLengthParams.polygons = simplifiedGeometries;
+                                            mapObj._geometryService.areasAndLengths(areasAndLengthParams, function (result)
+                                            {
+                                                var currentDrawMapArea = parseFloat(result.areas[0]).toFixed(2);
+                                                if (currentDrawMapArea > configObj._drawMapMaxArea)
+                                                {
+                                                    _alertMessage.show('所绘图形面积大于绘图面积上限' + configObj._drawMapMaxArea + '平方米,请重新绘制!', 'warning');
+                                                }
+
+                                                //停止绘图
+                                                mapObj._drawBar.deactivate();
+
+                                                $('#div_location_4_drawing').addClass('hidden');
+                                                _alertMessage.show('查询图形中', 'loading');
+
+                                                //保存查询用的图形
+                                                //实例化
+
+                                                graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get('location4_draw_symbol'));
+
+                                                mapObj._mapControl.getLayer('location4_draw_graphicLayer').add(graphic);
+
+                                                mapObj._mapControl.setExtent(graphic.geometry.getExtent());
+
+
+                                                //=================开始图形查询=================
+                                                //实例化QueryTask,查询图层2,也就是States图层
+                                                var queryTask = new esri.tasks.QueryTask(location4Json["gis_url"]);
+
+                                                //查询参数
+                                                var query = new esri.tasks.Query();
+
+                                                //当前面积和中等面积计算
+                                                //需要返回Geometry
+                                                query.returnGeometry = true;
+
+                                                //需要返回的字段
+                                                query.outFields = [location4Json["gis_shipidField"]];
+
+
+                                                //查询条件
+                                                query.where = location4Json["gis_whereString"];
+
+                                                //控件查询
+                                                query.geometry = geometry;
+
+                                                //进行查询,完成后调用showResults方法
+                                                queryTask.execute(query, function (featureSet)
+                                                {
+
+                                                    //===================指向query图层
+                                                    //装载shpid查询结果
+                                                    var features = featureSet.features;
+                                                    if (features.length > 0)
+                                                    {
+                                                        var shpids = '';
+                                                        $.each(features, function (i, u)
+                                                        {
+                                                            shpids += '‘' + u.attributes.SHP_ID + '’' + ',';
+                                                        });
+
+                                                        shpids = shpids.trimEnd(',');
+
+                                                        //if (shpids != '')
+                                                        //{
+                                                        //    commonBindTable(JSON.stringify(_location4Json), 'historygd', shpids, 1);
+                                                        //}
+                                                        //===================指向search图层
+                                                        //装载图形
+                                                        //组织数据
+                                                        var geometryHashMap = new hashMap();
+                                                        var shpidArray = [];
+                                                        var rExtent;
+                                                        var ia = 0;
+                                                        var currentArray = [];
+
+
+
+
+
+                                                        dojo.forEach(featureSet.features, function (feature)
+                                                        {
+                                                            if (shpidArray.indexOf(feature.attributes.SHP_ID) <= -1)
+                                                            {
+                                                                shpidArray.push(feature.attributes.SHP_ID);
+                                                                geometryHashMap.put(feature.attributes.SHP_ID, [feature.geometry]);
+                                                            }
+                                                            else
+                                                            {
+                                                                currentArray = geometryHashMap.get(feature.attributes.SHP_ID);
+                                                                currentArray.push(feature.geometry);
+                                                                geometryHashMap.put(feature.attributes.SHP_ID, currentArray);
+                                                            }
+
+
+
+                                                            var currentGraphics = new esri.Graphic();
+                                                            currentGraphics.geometry = feature.geometry;
+                                                            currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
+
+                                                            var layer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
+                                                            layer.add(currentGraphics);
+                                                            var shpid = location4Json["gis_shipidField"];
+                                                            currentGraphics.setAttributes({ shpid: feature.attributes.SHP_ID });
+
+
+
+                                                            if (ia == 0)
+                                                            {
+                                                                rExtent = feature.geometry.getExtent();
+                                                            }
+                                                            else
+                                                            {
+                                                                rExtent = rExtent.union(feature.geometry.getExtent());
+                                                            }
+                                                            ia++;
+                                                        });
+
+
+
+                                                        ////递归添加Graphic
+                                                        //AddGraphics(location4Json, shpidArray, 0, geometryHashMap, {
+                                                        //    success: function ()
+                                                        //    {
+                                                        //        _alertMessage.hidden('查询图形中', 'loading');
+
+                                                        //        //
+                                                        //        $('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
+
+                                                        //    }
+                                                        //});
+
+                                                        /*
+                                                        //开启Graphic的click响应
+                                                        graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
+                                                        var highLayer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
+
+                                                        highLayer.add(graphic);
+                                                        highLayer.enableMouseEvents();
+
+                                                        dojo.connect(highLayer, "onClick", function (evt)
+                                                        {
+                                                            //toolbarObj.btn_toolbar_clear_render_click("location4_row");
+
+                                                            //if (locationObj._lastHightLightGraphic != null)
+                                                            //{
+                                                            //    locationObj._lastHightLightGraphic.setSymbol(configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
+                                                            //}
+                                                            //locationObj._lastHightLightGraphic = evt.graphic;
+                                                            //evt.graphic.setSymbol(configObj._symbolHashMap.get(location4Json['gis_symbol_searchselected']));
+
+
+                                                            //var shpid = evt.graphic.attributes[location4Json["data_shipidField"]];
+
+                                                            ////图层配置---点击图片上---应该使用新加的json 可查询不同的表和字段
+                                                            //var data = {
+                                                            //    databaseNameString: location4Json["data_search_databaseNameString"],
+                                                            //    tableNameString: location4Json["data_search_tableNameString"],
+                                                            //    whereString: location4Json["data_search_whereString"].replaceAll('{gis_shipidField}', '\'' + shpid + '\''),
+                                                            //    columnsString: location4Json["data_search_columnsString"],
+                                                            //    orderByString: location4Json["data_search_orderByString"],
+
+                                                            //    pageSizeString: "", //不需要分页
+                                                            //    pageIndexString: "",
+                                                            //};
+
+                                                            //doAjaxFunction(location4Json["data_search_url"], location4Json["data_search_url_function"], data, {
+                                                            //    success: function (message)
+                                                            //    {
+                                                            //        // data_search_renderContainer  循环取
+                                                            //        var messagejson = (new Function("", "return " + message))();
+
+                                                            //        if (messagejson.rows.length > 0)
+                                                            //        {
+                                                            //            messagejson = messagejson.rows[0]
+
+                                                            //            var render = location4Json["data_search_render"];
+
+                                                            //            //呈现内容
+                                                            //            var resultHtml = '<div class="alert alert-success row">';
+                                                            //            $.each(render, function (i, u)
+                                                            //            {
+                                                            //                resultHtml += '<div class="col-xs-4">'
+                                                            //                resultHtml += '<strong>' + render[i]["text"] + '：' + '<strong>';
+                                                            //                resultHtml += messagejson[render[i]["field"]];
+                                                            //                resultHtml += '</div>';
+                                                            //            })
+
+                                                            //            resultHtml += '</div>';
+                                                            //            $('#' + location4Json["ui_search_renderContainer"]).html(resultHtml);
+
+                                                            //            //打开显示窗口
+                                                            //            mapObj.btn_common_navbar_click('info', null, true);
+                                                            //            mapObj.btn_common_tab_click('info', 'query')
+                                                            //        }
+
+
+                                                            //    },
+                                                            //    fail: function (message)
+                                                            //    {
+                                                            //        _blockMessage.show('GetCommonData执行失败<br/>' + message, 'fail');
+                                                            //    }
+                                                            //});
+
+
+
+
+
+                                                        });
+
+                                                        //定位
+                                                        mapObj._mapControl.setExtent(rExtent);
+                                                        */
+                                                    }
+                                                    else
+                                                    {
+                                                        _alertMessage.hidden('查询图形中', 'loading');
+                                                        _alertMessage.show('没有查询到任何图形', 'success');
+
+                                                        $('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
+
+                                                    }
+
+
+                                                }, function (error)
+                                                {
+                                                    _alertMessage.show(error.message, 'error');
+                                                });
+
+                                                mapObj._drawBar = null;
+                                                currentGraphic = null;
+                                                queryTask = null;
+                                                query = null;
+
+                                                geometry = null;
+                                                currentDrawMapArea = null;
+                                                areasAndLengthParams = null;
+                                                GC();
+                                            },
+                                            function (error)
+                                            {
+                                                _alertMessage.show(error.message, 'error');
+                                            });
+                                        },
+                                        function (error)
+                                        {
+                                            _alertMessage.show(error.message, 'error');
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    _alertMessage.show('没有查询到任何图形', 'success');
+                                }
+
+                            }, function (error)
+                            {
+                                _alertMessage.show(error.message, 'error');
+                            });
+                        });
+
+                        //开始绘图
+                        mapObj._drawBar.activate(esri.toolbars.Draw.FREEHAND_POLYGON);
+                    }
+                    else
+                    {
+
+                    }
+
+                },
+
+                //退出绘画
+                li_location_4_exit_draw_click: function ()
+                {
+                    $('#div_location_4_drawing').addClass('hidden');
+                    $('#btn_drawStart').removeClass('hidden');
+
+                    dojo.disconnect(mapObj._drawBarHandler);
+                    mapObj._drawBar.deactivate();
+                    mapObj._drawBar = null;
+                    mapObj._drawBarHandler = null;
+                },
+
+            };
+            return that;
+        })();
+
+        var mapObj = (function ()
+        {
+
+            //初始化图层和样式
+            initGraphicSymbol = function (callBackFunction)
+            {
+
+                _alertMessage = new alertMessage();
+                _confirmMessage = new confirmMessage();
+                _resultMessage = new resultMessage();
+                _blockMessage = new blockMessage();
+
+                //存储样式的hashmap
+                configObj._symbolHashMap = new hashMap();
+
+                //测量工具的 点、线、面
+
+
+                configObj._symbolHashMap.put('measure_point_symbol', new esri.symbol.SimpleMarkerSymbol().setStyle(esri.symbol.SimpleMarkerSymbol.STYLE_SQUARE).setColor(new dojo.Color([105, 105, 105, 0.5])));
+
+                configObj._symbolHashMap.put('measure_line_symbol', new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 0, 0]), 2));
+
+                configObj._symbolHashMap.put('measure_polygon_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([38, 187, 234]), 1), new dojo.Color([76, 199, 238, 0.6])));
+
+                //查询定位--坐标定位
+                configObj._symbolHashMap.put('location1_symbol', new esri.symbol.SimpleMarkerSymbol().setStyle(esri.symbol.SimpleMarkerSymbol.STYLE_SQUARE).setColor(new dojo.Color([186, 73, 249, 0.7])));
+
+                //查询定位--图形库定位
+                configObj._symbolHashMap.put('location2_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 255, 255]), 2), new dojo.Color([194, 138, 250, 0.5])));
+
+                //查询定位--属性库定位
+                configObj._symbolHashMap.put('location3_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 255, 255]), 2), new dojo.Color([200, 14, 107, 0.5])));
+
+                //查询定位--图层查询定位--绘图--蓝色
+                configObj._symbolHashMap.put('location4_draw_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 255, 255]), 1), new dojo.Color([11, 136, 153, 0.5])));
+
+                //查询定位--图层查询定位--绘图高亮--定位--橙色
+                configObj._symbolHashMap.put('location4_search_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 255, 255]), 1), new dojo.Color([250, 123, 102, 0.9])));
+
+                //查询定位--图层查询定位--绘图高亮--选中图形--浅蓝色
+                configObj._symbolHashMap.put('location4_searchselected_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 255, 255]), 2), new dojo.Color([102, 222, 250, 0.9])));
+
+                //查询定位--图层查询定位--定位图形
+                configObj._symbolHashMap.put('location4_query_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASH, new dojo.Color([255, 255, 0]), 2), new dojo.Color([244, 167, 33, 0.8])));
+
+                //参数定义
+                configObj._symbolHashMap.put('locationParm_symbol', new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASH, new dojo.Color([255, 255, 0]), 2), new dojo.Color([247, 178, 87, 0.8])));
+
+                //默认显示区域---修改为自动初始化
+                //_startExtent = new esri.geometry.Extent(12990970.1040412, 4659721.00099627, 13142257.7448089, 4902308.92016563, new esri.SpatialReference({ wkid: _wkid }));
+
+                callBackFunction.success();
+            };
+            initMap = function (callBackFunction)
+            {
+
+
+                //初始化mapObj.mapObj._mapControl
+                mapObj._mapControl = new esri.Map("div_map", {
+                    nav: false,
+                    slider: true,//显示放大缩小按钮
+                    sliderPosition: "bottom-right",//在右下角
+                    //extent: _startExtent,
+                    showAttribution: false,
+                    showInfoWindowOnClick: false,
+                    logo: false
+                });
+
+
+                var _geometryServiceUrl = "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer";
+                mapObj._geometryService = new esri.tasks.GeometryService(_geometryServiceUrl);
+
+                var layerConfigJsonArray = [
+                    {
+                        f_visible: "true",
+                        f_id: "1",
+                        f_description: "天津道路",
+                        f_value1: "0",
+                        f_opacity: "100",
+                        f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjroad/MapServer"
+                    }, {
+                        f_visible: "false",
+                        f_id: "2",
+                        f_description: "天津卫片",
+                        f_value1: "0",
+                        f_opacity: "100",
+                        f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjwp/MapServer"
+                    },
+                {
+                    f_visible: "true",
+                    f_id: "3",
+                    f_description: "天津道路tpk",
+                    f_value1: "0",
+                    f_opacity: "100",
+                    f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjroadtpk/MapServer"
+                }];
+
+                /*
+                , {
+                    f_visible: "true",
+                    f_id: "4",
+                    f_description: "天津道路dynamic",
+                    f_value1: "0",
+                    f_opacity: "100",
+                    f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjmap2/MapServer"
+                }
+                */
+                var baseserver = null;
+                $.each(layerConfigJsonArray, function (i, u)
+                {
+
+
+                    baseserver = new esri.layers.ArcGISTiledMapServiceLayer(u["f_url"],
+                             {
+                                 id: u["f_id"],
+                                 visible: u["f_visible"] == "true" ? true : false,
+                                 opacity: Number(u["f_opacity"]) / 100,
+                                 copyright: "",
+                                 description: "",
+                                 disableClientCaching: true,
+                                 minScale: 0,
+
+                             });
+                    mapObj._mapControl.addLayer(baseserver);
+
+                });
+
+
+                //添加渲染用图层
+                var renderLayer = null
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'measure_point_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'measure_line_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'measure_polygon_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location1_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location2_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location3_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location4_draw_graphicLayer', opacity: 1, visible: true });//手绘的图层
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location4_search_graphicLayer', opacity: 1, visible: true });//根据空间search之后渲染用的图层
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'location4_query_graphicLayer', opacity: 1, visible: true });//属性shpid查询(query)之后的图层
+                mapObj._mapControl.addLayer(renderLayer);
+                renderLayer = new esri.layers.GraphicsLayer({ displayOnPan: false, id: 'locationParm_graphicLayer', opacity: 1, visible: true });
+                mapObj._mapControl.addLayer(renderLayer);
+
+                //自动初始化
+                dojo.connect(mapObj._mapControl, 'onLoad', function (theMap)
+                {
+                    // // new esri.geometry.Extent(xmin, ymin, xmax, ymax, new esri.SpatialReference({ wkid: 4326 }));
+                    _startExtent = theMap.extent;//new esri.geometry.Extent(12990970.1040412, 4659721.00099627, 13142257.7448089, 4902308.92016563, new esri.SpatialReference({ wkid: _wkid }));
+                    _wkid = theMap.extent.spatialReference.wkid;
+
+
+                });
+
+                ////measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer,location1_graphicLayer,location2_graphicLayer,location3_graphicLayer,measurelog_graphicLayer,location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer,locationParm_graphicLayer,
+                //==================装载图层控制工具---layer图层控制
+                layerObj.initLayerControl(layerConfigJsonArray, {
+                    success: function (callBackFunction)
+                    {
+                        //状态toolbar控件
+
+                        toolbarObj.initToolbarsMeasure({ success: function () { }, fail: function () { } });
+                    },
+                    fail: function (message)
+                    {
+                        _alertMessage.show(message, error)
+                    }
+                });
+
+
+
+
+                layerConfigJsonArray = null;
+                baseserver = null;
+
+                GC();
+
+
+
+
+                /**/
+                ///saragisserver/rest/services/test?aa={aa}
+                //debugger;
+                //var dataJsonString = JSON.stringify({ "aa": "bb" });
+
+                //$.ajax({
+                //    type: 'post',
+                //    contentType: 'application/json',
+                //    url: "http://127.0.0.1:7081/saragisserver/rest/services/test?aa=ccc",
+                //    //data: dataJsonString,
+                //    dataType: 'json',
+                //    success: function (result) {
+                //
+                //    },
+                //    error: function (error) {
+
+                //
+                //    },
+                //    complete: function (XMLHttpRequest, textStatus) {
+                //        clearXmlHttpRequest(XMLHttpRequest);
+                //    }
+                //});
+                //    jQuery.support.cors = true;
+                //var dataJson = { name: "bb" };
+                //var dataJsonString = JSON.stringify(dataJson);
+
+                //$.ajax({
+                //    // type: "GET",
+                //    url: "http://127.0.0.1:7081/saragisserver/rest/services/gettest?name=成都",
+                //    // data: dataJsonString,
+                //    dataType: 'jsonp',
+                //    success: function (data) {
+                //
+                //    },
+                //    error: function (error) {
+
+                //
+                //    },
+
+                //});
+                //$.get("http://127.0.0.1:7081/saragisserver/rest/services/gettest/{\"aa\":\"bb\"}", function (aa) {
+                //
+                //});
+
+
+                ////var str = "{ \"Email\": \"star_2345@qq.com\", \"ID\": 19735, \"Name\": \"wuhong\", \"Position\": \"engineer\", \"Sex\": 1 }";
+                //debugger;
+
+                //$.ajax({
+                //    type: "POST",
+                //    contentType: "application/json",
+                //    url: "http://127.0.0.1:7081/saragisserver/rest/services/posttest",
+                //    data: dataJsonString,
+                //    dataType: 'JSON',
+                //    success: function (data) {
+                //
+                //    },
+                //    error: function (error) {
+
+                //
+                //    },
+                //});
+
+
+
+
+
+
+                ///saragisserver/rest/admin/addService
+            };
+
+            //接参数
+            initParmeter = function (callBackFunction)
+            {
+
+
+                configObj._pr_config = requestQuery('config');
+
+
+                if (configObj._pr_config == null || configObj._pr_config == '' || configObj._pr_config == 'null')
+                {
+                    configObj._pr_config = '{"layer":"false","tools":{"full":"false","pre_next":"false","mouse":"false","overview":"false","print":"false","measure":"false","clear":"false"},"location1":"false","location2":"false","location3":"false","location4":"false"}';
+                }
+                callBackFunction.success();
+
+            };
+
+            //根据url参数config传入的json决定对菜单的显示以及隐藏
+            initControl = function (callBackFunction)
+            {
+                if (configObj._pr_config != "")
+                {
+                    var configJson = (new Function("", "return " + configObj._pr_config))();
+
+
+                    var layer = configJson["layer"];
+                    var tools = configJson["tools"];
+                    var location1 = configJson["location1"];
+                    var location2 = configJson["location2"];
+                    var location3 = configJson["location3"];
+                    var location4 = configJson["location4"];
+
+
+
+                    /* layer/location： true：显示并且打开window
+                                        false：显示但是关闭window
+                                        null：隐藏
+                       tools：          false：显示该按钮
+                                        null：隐藏按钮
+                    */
+
+                    //图层按钮btn_navbar_layer  图层的window
+                    {
+                        switch (layer)
+                        {
+                            case 'true':
+                                $("#btn_navbar_layer").removeClass('hidden');
+                                $("#btn_navbar_info").removeClass('hidden');
+                                $("#div_layer").removeClass('hidden');
+                                $("#btn_navbar_layer").addClass('selected')
+
+                                break;
+                            case 'false':
+                                $("#btn_navbar_layer").removeClass('hidden');
+                                $("#btn_navbar_info").removeClass('hidden');
+
+                                break;
+                            default:
+                                break;
+                        };
+                    }
+                    //工具栏按钮btn_navbar_toolbar 工具栏window
+                    /*
+                    full:全景
+                    pre_next：前景后景
+                    mouse：放大缩小漫游
+                    overview：鹰眼
+                    print：打印
+                    measure：测量
+                    clear：清理
+                var aaa = { "full": "false", "pre_next": "false", "mouse": "false", "overview": "false", "print": "false", "measure": "false", "clear": "false" };
+
+                    */
+
+                    switch (tools["full"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_full").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_full").addClass('hidden');
+
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["pre_next"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_pre").removeClass('hidden');
+                            $("#btn_toolbar_next").removeClass('hidden');
+
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_pre").addClass('hidden');
+                            $("#btn_toolbar_next").addClass('hidden');
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["mouse"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_mouse_pan").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_mouse_pan").addClass('hidden');
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["zoom"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_mouse_zoomin").removeClass('hidden');
+                            $("#btn_toolbar_mouse_zoomout").removeClass('hidden');
+
+
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_mouse_zoomin").addClass('hidden');
+                            $("#btn_toolbar_mouse_zoomout").addClass('hidden');
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["overview"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_overview").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_navbar_overview").addClass('hidden');
+
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["print"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_print").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_navbar_print").addClass('hidden');
+
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["measure"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_measure").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_measure").addClass('hidden');
+
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    switch (tools["clear"])
+                    {
+                        case 'false':
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_toolbar_clear").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                        default:
+                            $("#btn_toolbar_clear").addClass('hidden');
+
+                            $("#btn_navbar_toolbar").removeClass('hidden');
+                            $("#btn_navbar_info").removeClass('hidden');
+                            break;
+                    };
+                    /*
+                    定位按钮btn_navbar_location 还有子节点  定位window
+                    */
+                    switch (location1)
+                    {
+                        case 'true':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication1").removeClass('hidden');
+                            $("#div_location_1").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+                            $("#btn_navbar_location").addClass('selected')
+
+                            break;
+                        case 'false':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication1").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+
+                            break;
+                        default:
+
+                            break;
+                    }
+                    switch (location2)
+                    {
+                        case 'true':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication2").removeClass('hidden');
+                            $("#div_location_2").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+                            $("#btn_navbar_location").addClass('selected')
+
+                            break;
+
+                        case 'false':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication2").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (location3)
+                    {
+                        case 'true':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication3").removeClass('hidden');
+                            $("#div_location_3").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+                            $("#btn_navbar_location").addClass('selected')
+
+                            break;
+                        case 'false':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication3").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (location4)
+                    {
+                        case 'true':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication4").removeClass('hidden');
+                            $("#div_location_4").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+                            $("#btn_navbar_location").addClass('selected')
+
+                            break;
+                        case 'false':
+                            $("#ul_location").removeClass('hidden');
+                            $("#li_lication4").removeClass('hidden');
+                            $("#btn_navbar_location").removeClass('hidden');
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                callBackFunction.success();
+            };
+            var that = {
+                _mapControl: "",
+
+
+                _navToolbar: "",//导航条--前景后景
+                _overviewMapDijit: "",//鹰眼
+                _navMeasureToolBar: "",//测量工具
+
+                _drawBar: null,
+                _drawBarHandler: null,
+
+                init: function (callBackFunction)
+                {
+                    try
+                    {
+                        initParmeter({
+                            success: function ()
+                            {
+                                initControl({
+                                    success: function ()
+                                    {
+                                        var currentVersion = getBrowerVersion();
+
+                                        //计算窗体尺寸
+                                        var $div_location_2_container = $('#div-location-2-container');
+                                        var $div_location_3_container = $('#div-location-3-container');
+                                        var $div_location_4_container = $('#div-location-4-container');
+                                        var $window = $(window);
+
+                                        var $header = $('#header');
+                                        var $div_toolbar = $('#div_toolbar');
+                                        var $btn_toolbar = $('#btn_toolbar');
+                                        var $div_layer = $('#div_layer');
+                                        var $div_layer_content = $('#div_layer_content');
+                                        var $div_location_1 = $('#div_location_1');
+                                        var $div_location_2 = $('#div_location_2');
+                                        var $div_location_3 = $('#div_location_3');
+                                        var $div_location_4 = $('#div_location_4');
+
+
+                                        if (currentVersion["browser"] == "chrome")
+                                        {
+                                            //设置header的高度
+                                            $header.height(50);
+                                            //设置工具栏的属性
+                                            $div_toolbar.height(130);
+                                            $div_toolbar.width(530);
+
+                                            $.each($btn_toolbar, function (i, u)
+                                            {
+                                                $btn_toolbar[i].style.width(60);
+                                            });
+                                            //图层属性
+                                            $div_layer.width(430);
+
+
+                                            //查询定位属性
+
+                                            $div_location_1.width(400);
+                                            $div_location_2.width(400);
+                                            $div_location_3.width(400);
+                                            $div_location_4.width(400);
+                                        }
+                                        else if (currentVersion["browser"] == "IE")
+                                        {
+                                            //设置header的高度
+                                            $header.height(50);
+                                            //设置工具栏的属性
+                                            $div_toolbar.height(110);
+                                            $div_toolbar.width(400);
+
+                                            $.each($btn_toolbar, function (i, u)
+                                            {
+                                                $btn_toolbar[i].style.width(60);
+                                            });
+                                            //图层属性
+                                            $div_layer.width(400);
+
+
+                                            //查询定位属性
+
+                                            $div_location_1.width(320);
+                                            $div_location_2.width(320);
+                                            $div_location_3.width(320);
+                                            $div_location_4.width(320);
+
+                                        }
+
+                                        $('#div_map').height($window.height() - 50);
+                                        $div_location_2_container.height($window.height() - 50 - 10 - 185 - 120 - 60);
+                                        $div_location_3_container.height($window.height() - 50 - 10 - 185 - 120 - 75);
+                                        $div_location_4_container.height($window.height() - 50 - 10 - 185 - 120 - 75);
+
+
+
+                                        setTimeout(function ()
+                                        {
+                                            initGraphicSymbol({
+                                                success: function ()
+                                                {
+                                                    initMap({
+                                                        success: function ()
+                                                        {
+                                                        },
+                                                    });
+
+                                                },
+                                                fail: function (message)
+                                                {
+                                                    _blockMessage.show(message, 'fail');
+                                                }
+                                            });
+                                        }, 100);
+
+
+                                    },
+                                });
+
+                            },
+                        });
+
+                    } catch (ex)
+                    {
+                        alert(ex.message);
+                    }
+                },
+
+                //图层菜单控制按钮
+                btn_common_navbar_click: function (buttonname, windowname, isshow)
+                {
+                    var $e = $('#btn_navbar_' + buttonname);
+
+                    if (isshow == undefined || isshow == null)
+                    {
+                        if ($e.hasClass('selected'))
+                        {
+                            $e.removeClass('selected');
+                            if (windowname == undefined || windowname == null || windowname == "")
+                            {
+                                $('#div_' + buttonname).addClass('hidden');
+                            }
+                            else
+                            {
+                                $('#div_' + buttonname + '_' + windowname).addClass('hidden');
+                            }
+                        }
+                        else
+                        {
+                            $e.addClass('selected');
+                            if (windowname == undefined || windowname == null || windowname == "")
+                            {
+                                $('#div_' + buttonname).removeClass('hidden');
+                            }
+                            else
+                            {
+                                $('.div-' + buttonname).addClass('hidden');
+                                $('#div_' + buttonname + '_' + windowname).removeClass('hidden');
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        if (isshow == true)
+                        {
+                            $e.addClass('selected');
+
+                            if (windowname == undefined || windowname == null || windowname == "")
+                            {
+                                $('#div_' + buttonname).removeClass('hidden');
+
+                            }
+                            else
+                            {
+                                $('.div-' + buttonname).addClass('hidden');
+                                $('#div_' + buttonname + '_' + windowname).removeClass('hidden');
+                            }
+
+                        }
+                        else
+                        {
+                            $e.removeClass('selected');
+
+                            $e = $('#div_' + buttonname);
+
+
+                            if (windowname == undefined || windowname == null || windowname == "")
+                            {
+                                $('#div_' + buttonname).addClass('hidden');
+                            }
+                            else
+                            {
+                                $('#div_' + buttonname + '_' + windowname).addClass('hidden');
+                            }
+                        }
+                    }
+
+                },
+
+                //tab页切换
+                btn_common_tab_click: function (windowname, tabname)
+                {
+                    var $e = $('#li_' + windowname + '_title_' + tabname);
+                    var $d = $('#div_' + windowname + '_content_' + tabname);
+
+                    if ($e.hasClass('selected'))
+                    {
+                    }
+                    else
+                    {
+                        $e.parent().children().removeClass('selected');
+                        $e.addClass('selected');
+                        $d.parent().children().addClass('hidden');
+                        $d.removeClass('hidden');
+                    }
+                },
+
+                //设置显示范围   坐标
+                setExt: function (ext)
+                {
+                    if (ext["xmax"] - ext["xmin"] > 45000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 45000;
+                        ext["ymin"] = ext["ymin"] - 45000;
+                        ext["xmax"] = ext["xmax"] + 45000;
+                        ext["ymax"] = ext["ymax"] + 45000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 35000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 40000;
+                        ext["ymin"] = ext["ymin"] - 40000;
+                        ext["xmax"] = ext["xmax"] + 40000;
+                        ext["ymax"] = ext["ymax"] + 40000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 25000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 35000;
+                        ext["ymin"] = ext["ymin"] - 35000;
+                        ext["xmax"] = ext["xmax"] + 35000;
+                        ext["ymax"] = ext["ymax"] + 35000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 20000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 30000;
+                        ext["ymin"] = ext["ymin"] - 30000;
+                        ext["xmax"] = ext["xmax"] + 30000;
+                        ext["ymax"] = ext["ymax"] + 30000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 10000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 25000;
+                        ext["ymin"] = ext["ymin"] - 25000;
+                        ext["xmax"] = ext["xmax"] + 25000;
+                        ext["ymax"] = ext["ymax"] + 25000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 5000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 10000;
+                        ext["ymin"] = ext["ymin"] - 10000;
+                        ext["xmax"] = ext["xmax"] + 10000;
+                        ext["ymax"] = ext["ymax"] + 10000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 3000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 5000;
+                        ext["ymin"] = ext["ymin"] - 5000;
+                        ext["xmax"] = ext["xmax"] + 5000;
+                        ext["ymax"] = ext["ymax"] + 5000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 1000)
+                    {
+                        ext["xmin"] = ext["xmin"] - 3000;
+                        ext["ymin"] = ext["ymin"] - 3000;
+                        ext["xmax"] = ext["xmax"] + 3000;
+                        ext["ymax"] = ext["ymax"] + 3000;
+                    }
+                    else if (ext["xmax"] - ext["xmin"] > 100)
+                    {
+                        ext["xmin"] = ext["xmin"] - 1500;
+                        ext["ymin"] = ext["ymin"] - 1500;
+                        ext["xmax"] = ext["xmax"] + 1500;
+                        ext["ymax"] = ext["ymax"] + 1500;
+                    }
+                    else
+                    {
+                        ext["xmin"] = ext["xmin"] - 300;
+                        ext["ymin"] = ext["ymin"] - 300;
+                        ext["xmax"] = ext["xmax"] + 300;
+                        ext["ymax"] = ext["ymax"] + 300;
+                    }
+                    return ext;
+                }
+            };
+            return that;
+        })();
+
+
+    </script>
+
+
+
+
+</head>
+
+<body id="mainbody" style="display: none; overflow-x: hidden; padding-top:0px;">
+
+    <header class="navbar navbar-inverse bs-docs-nav" id="header" style="margin-bottom: 0px; padding-left: 10px; left: 0px; width: 100%; border-radius: 0px; ">
+        <table width="100%">
+            <tr>
+                <td width="60%" align="left" style="color: white; font-size: 28px; padding-right: 50px; vertical-align:middle;">空间综合信息网</td>
+                <td width="40%" align="right" style="padding-right:5px">
+
+                    <div class="btn-group">
+                        <button id="btn_navbar_overview" type="button" class="btn btn-default navbar-button" style="height: 50px;" onclick=" toolbarObj.btn_overview_click();">
+
+                            <img class="img-icon" src="../../images/overview.png" /> <span>鹰眼</span>
+                        </button>
+
+
+                        <button id="btn_navbar_layer" type="button" class="btn btn-default navbar-button hidden" style="height: 50px;" onclick=" mapObj.btn_common_navbar_click('layer');">
+                            <img class="img-icon" src="../../images/layer2.png" /> 图层
+                        </button>
+                        <button id="btn_navbar_toolbar" type="button" class="btn btn-default navbar-button hidden" style="height: 50px;" onclick="mapObj.btn_common_navbar_click('toolbar');">
+                            <img class="img-icon" src="../../images/toolbar.png" />工具栏
+                        </button>
+
+                        <div class="btn-group">
+                            <button type="button" id="btn_navbar_location" style="height: 50px;" class="btn btn-default dropdown-toggle navbar-button hidden" data-toggle="dropdown">
+
+                                <img class="img-icon" src="../../images/location.png" /> 查询定位
+                                <span class="caret"></span>
+                            </button>
+                            <ul id="ul_location" class="dropdown-menu hidden" role="menu">
+                                <li id="li_lication1" class="hidden"><a onclick="mapObj.btn_common_navbar_click('location', '1', true);">坐标定位</a></li>
+                                <li id="li_lication4" class="hidden"><a onclick="mapObj.btn_common_navbar_click('location', '4', true);">供地图层定位</a></li>
+
+                            </ul>
+                        </div>
+                        <button id="btn_navbar_info" type="button" style="height: 50px;" class="btn btn-default navbar-button hidden" onclick="mapObj.btn_common_navbar_click('info');">
+                            <img class="img-icon" src="../../images/info.png" />信息栏
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    </header>
+    <div id="div_map" class="row" style="width: 100%;">
+    </div>
+
+    <div id="div_location_4_drawing" class="alert alert-warning hidden" style="z-index: 151; width: 100%; cursor: default; position: absolute; top: 40px; left: 1px; filter: alpha(Opacity=90);">
+        绘图模式中...<a onclick="locationObj.li_location_4_exit_draw_click()" style="right:20px;position:absolute">退出绘图模式</a>
+    </div>
+
+
+    <div id="div_toolbar" class="panel panel-info div-window hidden" style="position:absolute; z-index:10; left:10px; top:78px; height:140px;">
+        <div id="div_layer_title" class="panel-heading">
+            <h3 class="panel-title">
+                <ol class="breadcrumb" style="margin-bottom: 0px; background-color:transparent;">
+                    <img class="img-icon" src="../../images/toolbar.png" />
+                    <li>工具栏</li>
+                    <button type="button" class="close a-size-large-main" onclick="mapObj.btn_common_navbar_click('toolbar', null, false);" title="close it">
+                        &times;
+                    </button>
+
+                </ol>
+            </h3>
+        </div>
+        <div id="div_toolbar_content" class="panel-body">
+
+            <div class="btn-group">
+                <button id="btn_toolbar_full" type="button" class="btn_toolbar btn btn-default" style="height: 48px; " onclick="toolbarObj.btn_zoomfullext_click();">
+
+                    <img class="img-icon" src="../../images/full.png" />
+                    <span>全景</span>
+                </button>
+                <button id="btn_toolbar_pre" type="button" class="btn_toolbar btn btn-default" style="height: 48px; " onclick="toolbarObj.btn_zoomToPrev_click();">
+
+                    <img class="img-icon" src="../../images/Prev.png" />
+                    <span>前景</span>
+
+                </button>
+
+                <button id="btn_toolbar_next" type="button" class="btn_toolbar btn btn-default" style="height: 48px; " onclick="toolbarObj.btn_zoomToNextExtent_click();">
+
+                    <img class="img-icon" src="../../images/next.png" />
+                    <span>后景</span>
+                </button>
+
+                <div id="btn_toolbar_mouse" class="btn-group ">
+                    <button id="btn_toolbar_mouse_zoomin" type="button" style="height: 48px; " class="btn_toolbar btn btn btn-default hidden" onclick="toolbarObj.btn_zoom_click('zoomin')">
+                        <img class="img-icon" src="../../images/zoomin.png" />
+                        <span>放大</span>
+                    </button>
+                    <button id="btn_toolbar_mouse_zoomout" type="button" style="height: 48px; " class="btn_toolbar btn btn btn-default hidden" onclick="toolbarObj.btn_zoom_click('zoomout')">
+                        <img class="img-icon" src="../../images/zoomout.png" />
+                        <span>缩小</span>
+                    </button>
+                    <button id="btn_toolbar_mouse_pan" type="button" style="height: 48px; " class="btn_toolbar btn btn btn-default selected" onclick="toolbarObj.btn_zoom_click('pan')">
+                        <img class="img-icon" src="../../images/pan.png" /><span>漫游</span>
+                    </button>
+                </div>
+
+                <div class="btn-group">
+                    <button id="btn_toolbar_measure" type="button" class="btn btn-default dropdown-toggle" style="height: 48px; width: 83px;" data-toggle="dropdown">
+                        <img class="img-icon" src="../../images/measure.png" />
+                        测量
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li id="btn_toolbar_measure_point" onclick="toolbarObj.btn_measure_click('point')">
+                            <img class="img-icon" src="../../images/measure-point.png" />点
+                        </li>
+                        <li class="divider"></li>
+                        <li id="btn_toolbar_measure_line" onclick="toolbarObj.btn_measure_click('line')">
+                            <img class="img-icon" src="../../images/measure-line.png" />直线
+                        </li>
+                        <li id="btn_toolbar_measure_polyline" onclick="toolbarObj.btn_measure_click('polyline')">
+                            <img class="img-icon" src="../../images/measure-polyline.png" />折线
+                        </li>
+                        <li id="btn_toolbar_measure_freehandpolyline" onclick="toolbarObj.btn_measure_click('freehandpolyline')">
+                            <img class="img-icon" src="../../images/measure-freehandpolyline.png" />曲线
+                        </li>
+                        <li class="divider"></li>
+                        <li id="btn_toolbar_measure_polygon" onclick="toolbarObj.btn_measure_click('polygon')">
+                            <img class="img-icon" src="../../images/polygon.png" />面
+                        </li>
+                        <li id="btn_toolbar_measure_freehandpolygon" onclick="toolbarObj.btn_measure_click('freehandpolygon')">
+                            <img class="img-icon" src="../../images/measure-freehandpolygon.png" />任意面
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="btn-group">
+                    <button id="btn_toolbar_clear" class="btn btn-default dropdown-toggle" style="height: 48px; width: 83px;" type="button" data-toggle="dropdown">
+                        <img class="img-icon" src="../../images/clear.png" />
+                        清理
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li id="btn_toolbar_clear_layer" onclick="toolbarObj.btn_toolbar_clear_render_click('all');"><a>清理图层</a></li>
+                        <li id="btn_toolbar_clear_measure" onclick="toolbarObj.btn_toolbar_clear_render_click('measure');"><a>清理测量图层</a></li>
+                        <li id="btn_toolbar_clear_location1" onclick="toolbarObj.btn_toolbar_clear_render_click('location1');"><a>清理坐标定位图层</a></li>
+                        <li id="btn_toolbar_clear_location4" onclick="toolbarObj.btn_toolbar_clear_render_click('location4');"><a>清理图层查询</a></li>
+
+                        <li id="btn_toolbar_clear_info" onclick="toolbarObj.btn_toolbar_clear_render_click('info');"><a>清理测量日志</a></li>
+
+                    </ul>
+                </div>
+
+            </div>
+            <div class="row">
+                <div style="padding-top:5px;"><span>缩放比例：</span> <span id="div_scalenumber">1/1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>坐标：</span> <span id="div_coordinates"></span></div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="div_layer" class="panel panel-success div-window hidden" style="position:absolute; z-index:10; left:10px; top:220px; height:370px;">
+        <div id="div_layer_title" class="panel-heading">
+
+            <h3 class="panel-title">
+                <ol class="breadcrumb" style="margin-bottom: 0px; background-color:transparent;">
+                    <img class="img-icon" src="../../images/layer2.png" />
+                    <li>图层</li>
+                    <button type="button" class="close a-size-large-main" onclick="mapObj.btn_common_navbar_click('layer', null, false);" title="close it">
+                        &times;
+                    </button>
+                </ol>
+            </h3>
+        </div>
+        <div id="div_layer_content" class="panel-body" style="overflow-y: scroll; height: 340px">
+
+            <table class="table" id="table_layerlist"></table>
+        </div>
+    </div>
+    <div id="div_location_1" class="panel panel-warning div-window hidden div-location" style="position:absolute; z-index:10; right:10px; top:80px; height:450px; width:400px; ">
+        <div id="div_location_1_title" class="panel-heading">
+            <h3 class="panel-title">
+                <ol class="breadcrumb" style="margin-bottom: 0px; background-color:transparent;">
+
+                    <img class="img-icon" src="../../images/location.png" />
+                    <li id="li_location_1_title" class="li-location-title selected">
+                        坐标定位
+
+                    </li>
+                    <button type="button" class="close a-size-large-main" onclick="mapObj.btn_common_navbar_click('location_1', null, false);" title="close it">
+                        &times;
+                    </button>
+
+                </ol>
+            </h3>
+        </div>
+        <div id="div_location_1_content" class="panel-body">
+            <div>
+                <div class="input-group">
+                    <span class="input-group-addon">X</span>
+                    <input id="input_loaction_1_x" type="text" class="form-control" placeholder="666666.22">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Y</span>
+                    <input id="input_loaction_1_y" type="text" class="form-control" placeholder="7777777.22">
+                </div>
+                <div class="btn-group" style="width:100%;">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width:100%">
+                        缩放级别 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" style="width:100%">
+                        <li onclick="locationObj.li_location_1_click('100');"><a>100</a></li>
+                        <li onclick="locationObj.li_location_1_click('500');"><a>500</a></li>
+                        <li onclick="locationObj.li_location_1_click('1000');"><a>1000</a></li>
+                        <li onclick="locationObj.li_location_1_click('5000');"><a>5000</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="div_location_4" class="panel panel-warning div-window hidden div-location" style="position:absolute; z-index:10; right:10px; top:80px; height:500px; width:400px; ">
+        <div id="div_location_4_title" class="panel-heading">
+            <h3 class="panel-title">
+                <ol class="breadcrumb" style="margin-bottom: 0px; background-color:transparent;">
+                    <img class="img-icon" src="../../images/location.png" />
+                    <li id="li_location_4_title" class="li-location-title">图层查询</li>
+
+                    <button type="button" class="close a-size-large-main" onclick="mapObj.btn_common_navbar_click('location_4', null, false);" title="close it">
+                        &times;
+                    </button>
+                </ol>
+            </h3>
+        </div>
+        <div id="div_location_4_content" class="panel-body">
+
+            <div id="div_location_content_4_historygd">
+                <div class="input-group">
+                    <button id="btn_drawStart" class="btn btn-default" onclick="locationObj.li_location_4_click('historygd');" type="button">开始绘图</button>
+                </div>
+                <div class=" panel-body div-location-4-container" style="overflow-y: scroll; height: 330px">
+                    <table class="table table-hover">
+                        <tbody id="table_location_4_historygd" class="tbody-location"></tbody>
+                    </table>
+                </div>
+                <div style="text-align:center;height:70px;">
+                    <ul id="page_location_4_historygd" class="pagination"></ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="div_info" class="panel panel-primary div-window hidden" style="position: absolute; z-index: 10;  right: 10px; bottom: 10px;height:180px;left:10px; ">
+        <div id="div_info_title" class="panel-heading">
+            <h3 class="panel-title">
+                <ol class="breadcrumb" style="margin-bottom: 0px; background-color:transparent;">
+                    <li id="li_info_title_query" onclick="mapObj.btn_common_tab_click('info', 'query');" class="li-info-title selected">图形查询</li>
+                    <li id="li_info_title_result" onclick="mapObj.btn_common_tab_click('info', 'result');" class="li-info-title">
+                        测量日志
+                    </li>
+                    <button type="button" class="close a-size-large-main" onclick="mapObj.btn_common_navbar_click('info', null, false);" title="close it">
+                        &times;
+                    </button>
+                </ol>
+            </h3>
+        </div>
+        <div id="div_info_content" class="panel-body" style="overflow-y: scroll;height:130px;">
+            <div id="div_info_content_query">
+
+
+            </div>
+            <div id="div_info_content_result" class="hidden"></div>
+        </div>
+    </div>
+
+
+
+
+</body>
+</html>
