@@ -56,6 +56,7 @@ namespace sara.gisserver.console.doconsole
                             break;
                         case "start":
                             {
+                                string aa = "C:\\inetpub\\wwwroot\\sara\\sara.gisserver.console\\data\\";
                                 if (sara.gisserver.console.gis.server.ServerManager.ServicesInServer == null || (sara.gisserver.console.gis.server.ServerManager.ServicesInServer != null && sara.gisserver.console.gis.server.ServerManager.ServicesInServer.Count == 0))
                                 {
                                     sara.gisserver.console.gis.Global.IPAddress = "127.0.0.1";

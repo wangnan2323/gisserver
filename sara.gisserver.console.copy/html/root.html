@@ -1538,7 +1538,7 @@
                             //处理空间坐标系
                             var params = new esri.tasks.ProjectParameters();
                             params.geometries = [geometry];
-                            params.outSR = new esri.SpatialReference({ "wkid": 4548 });
+                            params.outSR = new esri.SpatialReference({ "wkid": _wkid });
 
                             mapObj._geometryService.project(params, function (geometries)
                             {
@@ -1547,12 +1547,13 @@
                                 {
                                     if (geometries[0].type == 'polygon' || geometries[0].type == 'freehand_polygon')
                                     {
-                                        //对绘制的图形进行简单化（容错）
-                                        var areasAndLengthParams = new esri.tasks.AreasAndLengthsParameters();
-                                        areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
-                                        areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_METER;
+                                     
                                         mapObj._geometryService.simplify(geometries, function (simplifiedGeometries)
                                         {
+                                            //对绘制的图形进行简单化（容错）
+                                            var areasAndLengthParams = new esri.tasks.AreasAndLengthsParameters();
+                                            areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
+                                            areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_METER;
                                             //计算面积
                                             areasAndLengthParams.polygons = simplifiedGeometries;
                                             mapObj._geometryService.areasAndLengths(areasAndLengthParams, function (result)
@@ -1649,16 +1650,16 @@
                                                             }
 
 
+                                                            //================
+                                                            //var currentGraphics = new esri.Graphic();
+                                                            //currentGraphics.geometry = feature.geometry;
+                                                            //currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
 
-                                                            var currentGraphics = new esri.Graphic();
-                                                            currentGraphics.geometry = feature.geometry;
-                                                            currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
-
-                                                            var layer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
-                                                            layer.add(currentGraphics);
-                                                            var shpid = location4Json["gis_shipidField"];
-                                                            currentGraphics.setAttributes({ shpid: feature.attributes.SHP_ID });
-
+                                                            //var layer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
+                                                            //layer.add(currentGraphics);
+                                                            //var shpid = location4Json["gis_shipidField"];
+                                                            //currentGraphics.setAttributes({ shpid: feature.attributes.SHP_ID });
+                                                            //================
 
 
                                                             if (ia == 0)
@@ -1671,22 +1672,25 @@
                                                             }
                                                             ia++;
                                                         });
+                                                                //_alertMessage.hidden('查询图形中', 'loading');
+
+                                                                ////
+                                                                //$('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
 
 
+                                                        //递归添加Graphic
+                                                        AddGraphics(location4Json, shpidArray, 0, geometryHashMap, {
+                                                            success: function ()
+                                                            {
+                                                                _alertMessage.hidden('查询图形中', 'loading');
 
-                                                        ////递归添加Graphic
-                                                        //AddGraphics(location4Json, shpidArray, 0, geometryHashMap, {
-                                                        //    success: function ()
-                                                        //    {
-                                                        //        _alertMessage.hidden('查询图形中', 'loading');
+                                                                //
+                                                                $('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
 
-                                                        //        //
-                                                        //        $('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
+                                                            }
+                                                        });
 
-                                                        //    }
-                                                        //});
-
-                                                        /*
+                                                        
                                                         //开启Graphic的click响应
                                                         graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
                                                         var highLayer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
@@ -1696,14 +1700,15 @@
 
                                                         dojo.connect(highLayer, "onClick", function (evt)
                                                         {
-                                                            //toolbarObj.btn_toolbar_clear_render_click("location4_row");
+                                                           
+                                                            toolbarObj.btn_toolbar_clear_render_click("location4_row");
 
-                                                            //if (locationObj._lastHightLightGraphic != null)
-                                                            //{
-                                                            //    locationObj._lastHightLightGraphic.setSymbol(configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
-                                                            //}
-                                                            //locationObj._lastHightLightGraphic = evt.graphic;
-                                                            //evt.graphic.setSymbol(configObj._symbolHashMap.get(location4Json['gis_symbol_searchselected']));
+                                                            if (locationObj._lastHightLightGraphic != null)
+                                                            {
+                                                                locationObj._lastHightLightGraphic.setSymbol(configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
+                                                            }
+                                                            locationObj._lastHightLightGraphic = evt.graphic;
+                                                            evt.graphic.setSymbol(configObj._symbolHashMap.get(location4Json['gis_symbol_searchselected']));
 
 
                                                             //var shpid = evt.graphic.attributes[location4Json["data_shipidField"]];
@@ -1765,8 +1770,8 @@
                                                         });
 
                                                         //定位
-                                                        mapObj._mapControl.setExtent(rExtent);
-                                                        */
+                                                        //mapObj._mapControl.setExtent(rExtent);
+                                                        
                                                     }
                                                     else
                                                     {

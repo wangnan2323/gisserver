@@ -11,7 +11,8 @@
     <RootNamespace>sara.gisserver.console.copy</RootNamespace>
     <AssemblyName>sara.gisserver.console.copy</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -19,7 +20,7 @@
     <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -63,6 +64,26 @@
     <None Include="tbb.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="gdal201.dll" />
+    <Content Include="gdalconst_csharp.dll" />
+    <Content Include="gdalconst_wrap.dll" />
+    <Content Include="GDAL\gdal201.dll" />
+    <Content Include="GDAL\gdalconst_csharp.dll" />
+    <Content Include="GDAL\gdalconst_wrap.dll" />
+    <Content Include="GDAL\gdal_csharp.dll" />
+    <Content Include="GDAL\gdal_wrap.dll" />
+    <Content Include="GDAL\geos.dll" />
+    <Content Include="GDAL\geos_c.dll" />
+    <Content Include="GDAL\msvcp110.dll" />
+    <Content Include="GDAL\msvcr110.dll" />
+    <Content Include="GDAL\ogr_csharp.dll" />
+    <Content Include="GDAL\ogr_wrap.dll" />
+    <Content Include="GDAL\osr_csharp.dll" />
+    <Content Include="GDAL\osr_wrap.dll" />
+    <Content Include="GDAL\proj.dll" />
+    <Content Include="gdal_csharp.dll" />
+    <Content Include="geos.dll" />
+    <Content Include="geos_c.dll" />
     <Content Include="html\root.html" />
     <Content Include="images\bullet_black.png" />
     <Content Include="images\bullet_blue.png" />
@@ -128,16 +149,35 @@
     <Content Include="images\指北针.png" />
     <Content Include="libfreexl-1.dll" />
     <Content Include="libgcc_s_dw2-1.dll" />
+    <Content Include="libgcc_s_seh_64-1.dll" />
     <Content Include="libgeos-3-3-1.dll" />
     <Content Include="libgeos-3-4-0dev.dll" />
+    <Content Include="libgeos-3-5-0.dll" />
     <Content Include="libgeos_c-1.dll" />
+    <Content Include="libgslcblas_d.dll" />
+    <Content Include="libgsl_d.dll" />
     <Content Include="libiconv-2.dll" />
+    <Content Include="liblzma-5.dll" />
     <Content Include="libproj-0.dll" />
+    <Content Include="libproj-9.dll" />
     <Content Include="libspatialite-4.dll" />
     <Content Include="libsqlite3-0.dll" />
     <Content Include="libstdc++-6.dll" />
+    <Content Include="libstdc++_64-6.dll" />
+    <Content Include="libxml2-2.dll" />
     <Content Include="license_ms-pl.txt" />
+    <Content Include="mod_spatialite.dll" />
+    <Content Include="msvcp110.dll" />
+    <Content Include="msvcr110.dll" />
+    <Content Include="ogr_csharp.dll" />
+    <Content Include="ogr_wrap.dll" />
+    <Content Include="osr_csharp.dll" />
+    <Content Include="osr_wrap.dll" />
+    <Content Include="proj.dll" />
     <Content Include="SQLite.Interop.dll" />
+    <Content Include="x64\SQLite.Interop.dll" />
+    <Content Include="x86\SQLite.Interop.dll" />
+    <Content Include="zlib1.dll" />
     <None Include="memcached.exe" />
     <None Include="msvcr71.dll" />
   </ItemGroup>

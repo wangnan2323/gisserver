@@ -115,8 +115,8 @@ namespace sara.gisserver.console.gis.server
         /// <param name="geometries"></param>
         /// <returns></returns>
         [OperationContract(Name = "GeometryServerUnion")]
-        [WebGet(UriTemplate = "/saragisserver/rest/services/Utilities/Geometry/GeometryServer/union?f={f}&outSR={outSR}&inSR={inSR}&geometries={geometries}", BodyStyle = WebMessageBodyStyle.Bare)]
-        Stream GeometryServerUnion(string f, string outSR, string inSR, string geometries);
+        [WebInvoke(UriTemplate = "/saragisserver/rest/services/Utilities/Geometry/GeometryServer/union", BodyStyle = WebMessageBodyStyle.Bare)]
+        Stream GeometryServerUnion(Stream requestBody);
 
 
 

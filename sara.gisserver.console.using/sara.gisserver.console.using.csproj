@@ -11,7 +11,8 @@
     <RootNamespace>sara.gisserver.console.using</RootNamespace>
     <AssemblyName>sara.gisserver.console.using</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -19,7 +20,7 @@
     <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -45,7 +46,6 @@
     <None Include="Eva.Library.dll.config" />
     <None Include="gdal_csharp.dll" />
     <None Include="ICSharpCode.SharpZipLib.dll" />
-    <None Include="log4net.dll" />
     <None Include="Memcached.ClientLibrary.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +55,7 @@
     <Content Include="Eva.Library.dll" />
     <Content Include="Eva.Library.pdb" />
     <Content Include="System.Data.SQLite-1.066\System.Data.SQLite.dll" />
+    <Content Include="System.Data.SQLite-1.086\System.Data.SQLite.dll" />
     <Content Include="System.Data.SQLite-1.093\System.Data.SQLite.dll" />
   </ItemGroup>
   <ItemGroup />

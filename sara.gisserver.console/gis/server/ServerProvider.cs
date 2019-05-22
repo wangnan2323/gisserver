@@ -21,6 +21,7 @@ using System.Linq;
 using System.Data;
 using sara.gisserver.console.doconsole;
 
+
 namespace sara.gisserver.console.gis.server
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
@@ -29,6 +30,8 @@ namespace sara.gisserver.console.gis.server
     public class ServerProvider : IServerProvider
     {
         private string connectString = string.Format("Data Source=" + AppDomain.CurrentDomain.BaseDirectory + "default.sqlite;Pooling=true;FailIfMissing=false");
+        //private string connectString = string.Format("Data Source=C:\\inetpub\\wwwroot\\sara\\sara.gisserver.console\\data\\default.sqlite;Pooling=true;FailIfMissing=false");
+        //
         /// <summary>
         /// 当前服务器下全部服务的集合
         /// </summary>
@@ -122,19 +125,25 @@ namespace sara.gisserver.console.gis.server
         /// <returns></returns>
         public Stream GeometryServerProject(string f, string outSR, string inSR, string geometries)
         {
-            
-            //转换为ST类型坐标系
-            string STstr = TransformToST(geometries);
+            string resultgeometries = "";
+            try
+            {
+                string STstr = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometries, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+                string sql = "select ST_AsText(ST_Transform(ST_GeomFromText('" + STstr + "'," + inSR + ")," + outSR + ")) as res";
+                //string sql = "select ST_AsText(ST_Simplify(ST_GeomFromText('POLYGON((12996138.984346 4788910.669415,12996635.82503 4788222.73616,12996138.984346 4787916.988047,12996138.984346 4788910.669415))',3857),0.1)) as res";
+                //转换wkid后的ST类型坐标系
+                string newgeometries = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sql, connectString).ToString();
 
-            string sql = "select ST_AsText(ST_Transform(ST_GeomFromText(" + STstr + "," + inSR + ")," + outSR + ")) as res";
-            //string sql = "select ST_AsText(ST_Simplify(ST_GeomFromText('POLYGON((12996138.984346 4788910.669415,12996635.82503 4788222.73616,12996138.984346 4787916.988047,12996138.984346 4788910.669415))',3857),0.1)) as res";
-            //转换wkid后的ST类型坐标系
-            string newgeometries = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sql, connectString).ToString();
-
-            //转换wkid后的geometries坐标系
-            string resultgeometries = TransformToGeometries(newgeometries, outSR, "1");
-
+                //转换wkid后的geometries坐标系
+                resultgeometries = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(newgeometries, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.esriGeometries, outSR).ToString();
+                
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
             return StreamFromPlainText(resultgeometries);
+
         }
 
         /// <summary>
@@ -147,17 +156,15 @@ namespace sara.gisserver.console.gis.server
         public Stream GeometryServerSimplify(string f, string sr, string geometries)
         {
 
-            ////转换为ST类型坐标系
-            //string STstr = TransformToST(geometries);
-            ////ST类型坐标系简单化
-            //string sql1 = "select ST_AsText(ST_Simplify(ST_GeomFromText(" + STstr + "," + sr + "),0.1)) as res";
-            ////等待
-            ////string resultST = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sql1,connectString).ToString();
+            //转换为ST类型坐标系
+            string STstr = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometries, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+            //ST类型坐标系简单化
+            string sql1 = "select ST_AsText(ST_Simplify(ST_GeomFromText('" + STstr + "'," + sr + "),0.1)) as res";
+            //等待
+            string resultST = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sql1,connectString).ToString();
 
-            ////临时使用 
-            //string resultST = "POLYGON((12996138.984346 4788910.669415, 12996635.82503 4788222.73616, 12996138.984346 4787916.988047, 12996138.984346 4788910.669415))";
-            ////简单化后的Geometries
-            //string resultgeometries = TransformToGeometries(resultST, sr,"1");
+            //简单化后的Geometries
+            string resultgeometries = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(resultST, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.esriGeometries).ToString();
             return StreamFromPlainText(geometries);
         }
 
@@ -172,18 +179,22 @@ namespace sara.gisserver.console.gis.server
         /// <returns></returns>
         public Stream GeometryServerLengths(string f, string polylines, string sr, string lengthUnit, string geodesic)
         {
-            //转换为ST类型坐标系
-            string STstr = TransformToST(polylines);            
-            
-            //线
-            string sqllength = "select ST_Length(ST_GeomFromText(" + STstr + "," + sr + ")) as length";
+            string length = "";
+            try
+            {
+                //转换为ST类型坐标系
+                string STstr = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(polylines, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+
+                //线
+                string sqllength = "select ST_Length(ST_GeomFromText('" + STstr + "'," + sr + ")) as length";
 
 
-            string length = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqllength,connectString).ToString();
-
-                
-            
-
+                length = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqllength, connectString).ToString();
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
             string result = "{\"lengths\":[" + length + "]}";
             return StreamFromPlainText(result);
         }
@@ -199,20 +210,25 @@ namespace sara.gisserver.console.gis.server
         /// <returns></returns>
         public Stream GeometryServerAreasAndLengths(string f, string polygons, string sr, string lengthUnit, string areaUnit)
         {
-            //转换为ST类型坐标系
-            string STstr = TransformToST(polygons);
+            string area = "";
+            string length = "";
+            try
+            {
+                //转换为ST类型坐标系
+                string STstr = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(polygons, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
 
 
                 //面
-                string sqlarea = "select ST_Area(ST_GeomFromText(" + STstr + "," + sr + ")) as area";
-                string sqllength = "select ST_Length(ST_GeomFromText(" + STstr.Replace("POLYGON((", "LINESTRING(").Replace("))", ")") + "," + sr + ")) as length";
+                string sqlarea = "select ST_Area(ST_GeomFromText('" + STstr + "'," + sr + ")) as area";
+                string sqllength = "select ST_Length(ST_GeomFromText('" + STstr.Replace("POLYGON((", "LINESTRING(").Replace("))", ")") + "'," + sr + ")) as length";
 
-            string area = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqlarea,connectString).ToString();
-            string length = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqllength,connectString).ToString();
-
-
-  
-
+                area = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqlarea, connectString).ToString();
+                length = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sqllength, connectString).ToString();
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
             string result = "{\"areas\":["+area+"],\"lengths\":["+length+"]}";
             return StreamFromPlainText(result);
         }
@@ -225,12 +241,58 @@ namespace sara.gisserver.console.gis.server
         /// <param name="inSR"></param>
         /// <param name="geometries"></param>
         /// <returns></returns>
-        public Stream GeometryServerUnion(string f, string outSR, string inSR, string geometries)
+        public Stream GeometryServerUnion(Stream requestBody)
         {
-            //结果字符串
-            string resultgeometries = "";
+            string result = string.Empty;
 
-            return StreamFromPlainText(resultgeometries);
+
+            string strRequest;
+            using (StreamReader sr = new StreamReader(requestBody))
+            {
+                strRequest = sr.ReadToEnd();
+            }
+
+            strRequest =  System.Web.HttpUtility.UrlDecode(strRequest, System.Text.Encoding.UTF8);
+
+            string[] str = strRequest.Split('&');
+            for(int i=0;i<str.Length;i++)
+            {
+                string[] arr = str[i].ToString().Split('=');
+                switch( arr[0])
+                {
+                    case "f":
+                        {
+
+                        }
+                        break;
+                    case "sr":
+                        {
+
+                        }
+                        break;
+                    case "geometries":
+                        {
+
+                        }
+                        break;
+                }
+            }
+
+            Hashtable htParams = null;
+            WebOperationContext.Current.OutgoingResponse.Headers["X-Powered-By"] = sara.gisserver.console.gis.Global.ServerName;
+            WebOperationContext.Current.OutgoingResponse.ContentType = "text/plain;charset=utf-8";
+            result = AuthenticateAndParseParams(requestBody, out htParams);
+            if (result != string.Empty)
+            {
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result);
+                return new MemoryStream(bytes);
+            }
+            else
+            {
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result);
+                return new MemoryStream(bytes);
+            }
+           
         }
 
         /// <summary>
@@ -253,12 +315,12 @@ namespace sara.gisserver.console.gis.server
            
             //转换为ST类型坐标系
 
-            string stString = TransformToST(geometry);
+            string stString = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometry, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
 
             string sql = "";
             sql += " select asText(ST_Transform(SHAPE, " + outSR + ")) as geo,name,objectid from 水域 as a";
             sql += " where ST_Intersects(";
-            sql += " ST_GeomFromText(" + stString + ", " + inSR + "),";
+            sql += " ST_GeomFromText('" + stString + "', " + inSR + "),";
             sql += " ST_Transform(SHAPE, " + inSR + "))= 1";
             DataSet ds = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.Query(sql,connectString);
             //ArrayList arr = new ArrayList();
@@ -1600,530 +1662,6 @@ Invalid version!
             return new MemoryStream(bytes);
         }
 
-        /// <summary>
-        /// 将ST类型坐标系转换为Geometries类型
-        /// </summary>
-        /// <param name="str">ST类型字符串</param>
-        /// <param name="outSR">输出wxid</param>
-        /// <param name="outSR">输出Geometries类型 1.esri-Geometries  2.normal-Geometries  3.simple-Geometries 默认为2</param>
-        /// <returns></returns>
-        public string TransformToGeometries(string str, string outSR, string outtype)
-        {
-            //判断输出类型正确性与默认值
-            if (outtype != "1" && outtype != "2" && outtype != "3")
-            {
-                outtype = "2";
-            }
-
-            string geometryType = str.Substring(0, str.IndexOf('('));
-            string resultgeometries = str.Substring(str.IndexOf('('));
-            //转换为ersi-Geometries
-            if (outtype == "1")
-            {
-                if (geometryType == "POINT")
-                {
-                    string[] temp = str.Substring(str.IndexOf('(')).Trim('(').Trim(')').Split(' ');
-
-                    resultgeometries = "{\"geometryType\":\"esriGeometryPoint\",\"geometries\":[{\"x\":" + temp[0] + ",\"y\":" + temp[1] + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]}";
-
-                }
-                else
-                {
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            if (!resultgeometries.StartsWith("((("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-                            }
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            if (resultgeometries.StartsWith("(("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-
-                            }
-                            else if (resultgeometries.StartsWith("("))
-                            {
-                                resultgeometries = "((" + resultgeometries + "))";
-                            }
-
-                            resultgeometries = resultgeometries.Replace("), (", ")), ((");
-                            break;
-                    }
-
-
-                    resultgeometries = resultgeometries.Replace('(', '[').Replace(')', ']').Replace(", ", "],[").Replace("]],[[", "],[").Replace(' ', ',');
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            resultgeometries = "{\"geometryType\":\"esriGeometryPolygon\",\"geometries\":[{\"rings\":" + resultgeometries + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]}";
-
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            resultgeometries = "{\"geometryType\":\"esriGeometryPolyline\",\"geometries\":[{\"paths\":" + resultgeometries + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]}";
-
-                            break;
-                    }
-
-                }
-            }
-            //转换为normal-Geometries
-            else if (outtype == "2")
-            {
-                if (geometryType == "POINT")
-                {
-                    string[] temp = str.Substring(str.IndexOf('(')).Trim('(').Trim(')').Split(' ');
-
-                    resultgeometries = "{\"type\":\"point\",\"x\":" + temp[0] + ",\"y\":" + temp[1] + ",\"spatialReference\":{\"wkid\":" + outSR + "}}";
-
-                }
-                else
-                {
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            if (!resultgeometries.StartsWith("((("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-                            }
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            if (resultgeometries.StartsWith("(("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-
-                            }
-                            else if (resultgeometries.StartsWith("("))
-                            {
-                                resultgeometries = "((" + resultgeometries + "))";
-                            }
-
-                            resultgeometries = resultgeometries.Replace("), (", ")), ((");
-                            break;
-                    }
-
-
-                    resultgeometries = resultgeometries.Replace('(', '[').Replace(')', ']').Replace(", ", "],[").Replace("]],[[", "],[").Replace(' ', ',');
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            resultgeometries = "{\"type\":\"polygon\",\"rings\":" + resultgeometries + ",\"_ring\":0,\"spatialReference\":{\"wkid\":" + outSR + "},\"_centroid\":null,\"_extent\":null}";
-
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            resultgeometries = "{\"type\":\"polyline\",\"paths\":" + resultgeometries + ",\"_path\":0,\"spatialReference\":{\"wkid\":" + outSR + "}}";
-
-                            break;
-                    }
-
-                }
-            }
-            //转换为simple-Geometries
-            else if (outtype == "3")
-            {
-                if (geometryType == "POINT")
-                {
-                    string[] temp = str.Substring(str.IndexOf('(')).Trim('(').Trim(')').Split(' ');
-
-                    resultgeometries = "[{\"x\":" + temp[0] + ",\"y\":" + temp[1] + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]";
-
-                }
-                else
-                {
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            if (!resultgeometries.StartsWith("((("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-                            }
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            if (resultgeometries.StartsWith("(("))
-                            {
-                                resultgeometries = "(" + resultgeometries + ")";
-
-                            }
-                            else if (resultgeometries.StartsWith("("))
-                            {
-                                resultgeometries = "((" + resultgeometries + "))";
-                            }
-
-                            resultgeometries = resultgeometries.Replace("), (", ")), ((");
-                            break;
-                    }
-
-
-                    resultgeometries = resultgeometries.Replace('(', '[').Replace(')', ']').Replace(", ", "],[").Replace("]],[[", "],[").Replace(' ', ',');
-                    switch (geometryType)
-                    {
-                        case "POLYGON":
-                        case "MULTIPOLYGON":
-                            resultgeometries = "[{\"rings\":" + resultgeometries + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]";
-
-                            break;
-                        case "LINESTRING":
-                        case "MULTILINESTRING":
-                            resultgeometries = "[{\"paths\":" + resultgeometries + ",\"spatialReference\":{\"wkid\":" + outSR + "}}]";
-
-                            break;
-                    }
-
-                }
-            }
-            return resultgeometries;
-        }
-
-
-        /// <summary>
-        /// 将Geometries类型坐标系转换为ST类型
-        /// </summary>
-        /// <param name="str">Geometries类型字符串</param>
-        /// <returns></returns>
-        public string TransformToST(string geometries)
-        {
-            geometries = geometries.TrimStart('[').TrimEnd(']');
-            //geometries = "{\"type\":\"point\",\"x\":13104520.927276257,\"y\":4824302.82476499,\"spatialReference\":{\"wkid\":3857}}";
-            Hashtable ht = JSON.JsonDecode(geometries) as Hashtable;
-            //结果字符串
-            string resultgeometries = "";
-            //esri-geometries转换
-            if (ht.ContainsKey("geometryType"))
-            {
-                //全局变量
-                ArrayList geometriesArray = ht["geometries"] as ArrayList;
-                Hashtable geometry = geometriesArray[0] as Hashtable;
-                ArrayList pointsarray;
-                string str = "";
-
-
-                switch (ht["geometryType"].ToString())
-                {
-                    //面
-                    case "esriGeometryPolygon":
-
-                        pointsarray = (geometry["rings"] as ArrayList) as ArrayList;
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str = "'MULTIPOLYGON(((";
-                        }
-                        else
-                        {
-                            str = "'POLYGON((";
-                        }
-
-                        for (int ii = 0; ii < pointsarray.Count; ii++)
-                        {
-                            ArrayList points = pointsarray[ii] as ArrayList;
-
-                            for (int iii = 0; iii < points.Count; iii++)
-                            {
-                                if (iii != 0)
-                                {
-                                    str += ",";
-                                }
-                                ArrayList point = points[iii] as ArrayList;
-                                str += point[0].ToString() + " " + point[1].ToString();
-                            }
-
-                            if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                            {
-                                str += ")),((";
-                            }
-
-                        }
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str += ")))'";
-                        }
-                        else
-                        {
-                            str += "))'";
-                        }
-                        resultgeometries = str;
-
-                        break;
-                    //线
-                    case "esriGeometryPolyline":
-
-                        pointsarray = (geometry["paths"] as ArrayList) as ArrayList;
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str = "'MULTILINESTRING((";
-                        }
-                        else
-                        {
-                            str = "'LINESTRING(";
-                        }
-                        for (int ii = 0; ii < pointsarray.Count; ii++)
-                        {
-                            ArrayList points = pointsarray[ii] as ArrayList;
-
-                            for (int iii = 0; iii < points.Count; iii++)
-                            {
-                                if (iii != 0)
-                                {
-                                    str += ",";
-                                }
-                                ArrayList point = points[iii] as ArrayList;
-                                str += point[0].ToString() + " " + point[1].ToString();
-                            }
-
-                            if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                            {
-                                str += "),(";
-                            }
-
-                        }
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str += "))'";
-                        }
-                        else
-                        {
-                            str += ")'";
-                        }
-
-                        resultgeometries = str;
-                        break;
-                    //点
-                    case "esriGeometryPoint":
-                        string x = geometry["x"].ToString();
-                        string y = geometry["y"].ToString();
-                        resultgeometries = $"'POINT({x} {y})'";
-                        break;
-                }
-            }
-            //normal-geometries转换
-            else if (ht.ContainsKey("type"))
-            {
-                ArrayList pointsarray;
-                string str = "";
-
-                switch (ht["type"].ToString())
-                {
-                    //面
-                    case "polygon":
-
-                        pointsarray = (ht["rings"] as ArrayList) as ArrayList;
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str = "'MULTIPOLYGON(((";
-                        }
-                        else
-                        {
-                            str = "'POLYGON((";
-                        }
-
-                        for (int ii = 0; ii < pointsarray.Count; ii++)
-                        {
-                            ArrayList points = pointsarray[ii] as ArrayList;
-
-                            for (int iii = 0; iii < points.Count; iii++)
-                            {
-                                if (iii != 0)
-                                {
-                                    str += ",";
-                                }
-                                ArrayList point = points[iii] as ArrayList;
-                                str += point[0].ToString() + " " + point[1].ToString();
-                            }
-
-                            if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                            {
-                                str += ")),((";
-                            }
-
-                        }
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str += ")))'";
-                        }
-                        else
-                        {
-                            str += "))'";
-                        }
-                        resultgeometries = str;
-
-                        break;
-                    //线
-                    case "polyline":
-
-                        pointsarray = (ht["paths"] as ArrayList) as ArrayList;
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str = "'MULTILINESTRING((";
-                        }
-                        else
-                        {
-                            str = "'LINESTRING(";
-                        }
-                        for (int ii = 0; ii < pointsarray.Count; ii++)
-                        {
-                            ArrayList points = pointsarray[ii] as ArrayList;
-
-                            for (int iii = 0; iii < points.Count; iii++)
-                            {
-                                if (iii != 0)
-                                {
-                                    str += ",";
-                                }
-                                ArrayList point = points[iii] as ArrayList;
-                                str += point[0].ToString() + " " + point[1].ToString();
-                            }
-
-                            if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                            {
-                                str += "),(";
-                            }
-
-                        }
-
-                        if (pointsarray.Count > 1)
-                        {
-                            str += "))'";
-                        }
-                        else
-                        {
-                            str += ")'";
-                        }
-
-                        resultgeometries = str;
-                        break;
-                    //点
-                    case "point":
-                        string x = ht["x"].ToString();
-                        string y = ht["y"].ToString();
-                        resultgeometries = $"'POINT({x} {y})'";
-                        break;
-                }
-            }
-            //simple-geometries转换
-            else if (ht.ContainsKey("spatialReference"))
-            {
-                ArrayList pointsarray;
-                string str = "";
-                if (ht.ContainsKey("rings"))
-                {
-                    //面
-                    pointsarray = (ht["rings"] as ArrayList) as ArrayList;
-
-                    if (pointsarray.Count > 1)
-                    {
-                        str = "'MULTIPOLYGON(((";
-                    }
-                    else
-                    {
-                        str = "'POLYGON((";
-                    }
-
-                    for (int ii = 0; ii < pointsarray.Count; ii++)
-                    {
-                        ArrayList points = pointsarray[ii] as ArrayList;
-
-                        for (int iii = 0; iii < points.Count; iii++)
-                        {
-                            if (iii != 0)
-                            {
-                                str += ",";
-                            }
-                            ArrayList point = points[iii] as ArrayList;
-                            str += point[0].ToString() + " " + point[1].ToString();
-                        }
-
-                        if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                        {
-                            str += ")),((";
-                        }
-
-                    }
-
-                    if (pointsarray.Count > 1)
-                    {
-                        str += ")))'";
-                    }
-                    else
-                    {
-                        str += "))'";
-                    }
-                    resultgeometries = str;
-                }
-                else if (ht.ContainsKey("paths"))
-                {
-                    //线
-                    pointsarray = (ht["paths"] as ArrayList) as ArrayList;
-
-                    if (pointsarray.Count > 1)
-                    {
-                        str = "'MULTILINESTRING((";
-                    }
-                    else
-                    {
-                        str = "'LINESTRING(";
-                    }
-                    for (int ii = 0; ii < pointsarray.Count; ii++)
-                    {
-                        ArrayList points = pointsarray[ii] as ArrayList;
-
-                        for (int iii = 0; iii < points.Count; iii++)
-                        {
-                            if (iii != 0)
-                            {
-                                str += ",";
-                            }
-                            ArrayList point = points[iii] as ArrayList;
-                            str += point[0].ToString() + " " + point[1].ToString();
-                        }
-
-                        if (pointsarray.Count > 1 && ii != pointsarray.Count - 1)
-                        {
-                            str += "),(";
-                        }
-
-                    }
-
-                    if (pointsarray.Count > 1)
-                    {
-                        str += "))'";
-                    }
-                    else
-                    {
-                        str += ")'";
-                    }
-
-                    resultgeometries = str;
-                }
-                else if (ht.ContainsKey("x") && ht.ContainsKey("y"))
-                {
-                    string x = ht["x"].ToString();
-                    string y = ht["y"].ToString();
-                    resultgeometries = $"'POINT({x} {y})'";
-                }
-            }
-
-
-
-            return resultgeometries;
-
-        }
 
     }
 }

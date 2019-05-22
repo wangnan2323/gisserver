@@ -27,11 +27,15 @@ namespace sara.gisserver.console.doconsole
 
             try
             {
+
                 ////这是最重要的一句，需要引用库。
-                ExecuteSql("select load_extension('libspatialite-4.dll')");
-                //ExecuteSql("select load_extension('mod_spatialite.dll')");
+                //ExecuteSql("select load_extension('libspatialite-4.dll')");
+                ////ExecuteSql("select load_extension('mod_spatialite.dll')");
                 //ExecuteSql("select load_extension('libgeos-3-3-1.dll')");
+                //ExecuteSql("select load_extension('libgeos-3-4-0dev.dll')");
                 //ExecuteSql("select load_extension('libgeos_c-1.dll')");
+
+                ExecuteSql("select load_extension('mod_spatialite.dll')");
             }
             catch (Exception ex)
             {
