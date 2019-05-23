@@ -255,44 +255,63 @@ namespace sara.gisserver.console.gis.server
             strRequest =  System.Web.HttpUtility.UrlDecode(strRequest, System.Text.Encoding.UTF8);
 
             string[] str = strRequest.Split('&');
-            for(int i=0;i<str.Length;i++)
+            string wkid = (JSON.JsonDecode(str[1].ToString().Substring(str[1].ToString().IndexOf("=") + 1)) as Hashtable)["wkid"].ToString();
+            Hashtable ht = JSON.JsonDecode(str[2].ToString().Substring(str[2].ToString().IndexOf("=")+1)) as Hashtable;
+            ArrayList ringlist = ht["geometries"] as ArrayList;
+
+            string uniongeo = "";
+            string currentgeo = "";
+            string strgeo = "";
+            if (ringlist.Count > 1)
             {
-                string[] arr = str[i].ToString().Split('=');
-                switch( arr[0])
+
+                for(int i = 0; i < ringlist.Count; i++)
                 {
-                    case "f":
-                        {
+                    if (uniongeo == "")
+                    {
+                        uniongeo = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(JSON.JsonEncode(ringlist[i] as Hashtable),sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+                    }
+                    else
+                    {
+                        currentgeo = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(JSON.JsonEncode(ringlist[i] as Hashtable), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
 
-                        }
-                        break;
-                    case "sr":
-                        {
+                        //两个ST类型坐标系unino
+                        string sql1 = "select ST_AsText(ST_Union(ST_GeomFromText('" + uniongeo + "'," + wkid     + "),ST_GeomFromText('" + currentgeo + "'," + wkid + "))) as res";
+                        //合并后留用
+                        uniongeo = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.GetSingle(sql1, connectString).ToString();
 
-                        }
-                        break;
-                    case "geometries":
-                        {
+                    }
 
-                        }
-                        break;
                 }
-            }
+                strgeo = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(uniongeo, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.normalGeometries, wkid).ToString();
 
-            Hashtable htParams = null;
-            WebOperationContext.Current.OutgoingResponse.Headers["X-Powered-By"] = sara.gisserver.console.gis.Global.ServerName;
-            WebOperationContext.Current.OutgoingResponse.ContentType = "text/plain;charset=utf-8";
-            result = AuthenticateAndParseParams(requestBody, out htParams);
-            if (result != string.Empty)
-            {
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result);
-                return new MemoryStream(bytes);
             }
             else
             {
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result);
-                return new MemoryStream(bytes);
+                strgeo = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(JSON.JsonEncode(ringlist[0] as Hashtable), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.normalGeometries,wkid).ToString();
             }
-           
+
+            WebOperationContext.Current.OutgoingResponse.ContentType = "text/plain;charset=utf-8";
+            WebOperationContext.Current.OutgoingResponse.Headers["X-Powered-By"] = sara.gisserver.console.gis.Global.ServerName;
+            
+            if (strgeo == string.Empty || strgeo is null)
+            {
+                result = @"{
+                    ""success"": false,
+                    ""message"": 图形合并操作错误
+                }";
+            }
+            else
+            {
+                result = @"{
+                    ""success"": true,
+                    ""geometry"": " + strgeo + @"
+                }";
+            }
+
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result);
+            return new MemoryStream(bytes);
+
         }
 
         /// <summary>
@@ -318,7 +337,7 @@ namespace sara.gisserver.console.gis.server
             string stString = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometry, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
 
             string sql = "";
-            sql += " select asText(ST_Transform(SHAPE, " + outSR + ")) as geo,name,objectid from 水域 as a";
+            sql += " select asText(ST_Transform(SHAPE, " + outSR + ")) as geo,name,shpid from 水域 as a";
             sql += " where ST_Intersects(";
             sql += " ST_GeomFromText('" + stString + "', " + inSR + "),";
             sql += " ST_Transform(SHAPE, " + inSR + "))= 1";
@@ -366,43 +385,48 @@ namespace sara.gisserver.console.gis.server
                 //ht["name"] = ds.Tables[0].Rows[i]["name"].ToString();
                 //ht["geo"] = TransformToGeometries(ds.Tables[0].Rows[i]["geo"].ToString(), outSR, "2");
                 //arr.Add(ht);
-                Hashtable ht_feature = new Hashtable();
+                //Hashtable ht_feature = new Hashtable();
 
-                Hashtable ht_feature_attributes = new Hashtable();
-                ht_feature_attributes["SHP_ID"] = ds.Tables[0].Rows[i]["objectid"].ToString();
-                ht_feature["attributes"] = ht_feature_attributes;
+                //Hashtable ht_feature_attributes = new Hashtable();
+                //ht_feature_attributes["SHP_ID"] = ds.Tables[0].Rows[i]["objectid"].ToString();
+                //ht_feature["attributes"] = ht_feature_attributes;
 
-                Hashtable ht_feature_geometry = new Hashtable();
+                //Hashtable ht_feature_geometry = new Hashtable();
 
-                ht_feature_geometry["type"] = "polygon";
-                ArrayList arr_feature_geometry_ring1 = new ArrayList();
-                ArrayList arr_feature_geometry_ring2 = new ArrayList();
-                string ringsString = ds.Tables[0].Rows[i]["geo"].ToString().Replace("MULTIPOLYGON(((", "").Replace(")))", "");
-                string[] ringArr = ringsString.Split(',');
+                //ht_feature_geometry["type"] = "polygon";
+                //ArrayList arr_feature_geometry_ring1 = new ArrayList();
+                //ArrayList arr_feature_geometry_ring2 = new ArrayList();
+                //string ringsString = ds.Tables[0].Rows[i]["geo"].ToString().Replace("MULTIPOLYGON(((", "").Replace(")))", "");
+                //string[] ringArr = ringsString.Split(',');
 
-                for (int ii = 0; ii < ringArr.Length; ii++)
-                {
-                    ArrayList arr_feature_geometry_ring3 = new ArrayList();
-                    string[] aa = ringArr[ii].Trim().Split(' ');
-                    arr_feature_geometry_ring3.Add(aa[0]);
-                    arr_feature_geometry_ring3.Add(aa[1]);
-                    arr_feature_geometry_ring2.Add(arr_feature_geometry_ring3);
-                }
+                //for (int ii = 0; ii < ringArr.Length; ii++)
+                //{
+                //    ArrayList arr_feature_geometry_ring3 = new ArrayList();
+                //    string[] aa = ringArr[ii].Trim().Split(' ');
+                //    arr_feature_geometry_ring3.Add(aa[0]);
+                //    arr_feature_geometry_ring3.Add(aa[1]);
+                //    arr_feature_geometry_ring2.Add(arr_feature_geometry_ring3);
+                //}
 
 
-                arr_feature_geometry_ring1.Add(arr_feature_geometry_ring2);
-                ht_feature_geometry["rings"] = arr_feature_geometry_ring1;
-                ht_feature_geometry["_ring"] = 0;
+                //arr_feature_geometry_ring1.Add(arr_feature_geometry_ring2);
+                //ht_feature_geometry["rings"] = arr_feature_geometry_ring1;
+                //ht_feature_geometry["_ring"] = 0;
 
-                Hashtable ht_feature_geometry_spatialReference = new Hashtable();
-                ht_feature_geometry_spatialReference["wkid"] = outSR;
-                ht_feature_geometry_spatialReference["latestWkid"] = outSR;
-                ht_feature_geometry["spatialReference"] = ht_feature_geometry_spatialReference;
+                //Hashtable ht_feature_geometry_spatialReference = new Hashtable();
+                //ht_feature_geometry_spatialReference["wkid"] = outSR;
+                //ht_feature_geometry_spatialReference["latestWkid"] = outSR;
+                //ht_feature_geometry["spatialReference"] = ht_feature_geometry_spatialReference;
 
-                ht_feature["geometry"] = ht_feature_geometry;
+                //ht_feature["geometry"] = ht_feature_geometry;
 
-                arr_features.Add(ht_feature);
+                //arr_features.Add(ht_feature);
 
+                Hashtable geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(ds.Tables[0].Rows[i]["geo"].ToString(), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries,outSR) as Hashtable;
+                Hashtable shpidht = new Hashtable();
+                shpidht.Add("SHP_ID", ds.Tables[0].Rows[i]["shpid"].ToString());
+                geoht.Add("attributes", shpidht);
+                arr_features.Add(geoht);
             }          
             
          

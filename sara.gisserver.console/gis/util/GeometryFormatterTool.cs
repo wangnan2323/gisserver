@@ -508,14 +508,8 @@ namespace sara.gisserver.console.gis.util.geometryFormatterTool
                     geoht.Add(_name, "0");
                     geoht.Add("spatialReference", wkidht);
 
-                    Hashtable featureht = new Hashtable();
+                    resultht.Add("geometry", geoht);
 
-                    featureht.Add("geometry", geoht);
-
-                    ArrayList featurelist = new ArrayList();
-                    featurelist.Add(featureht);
-
-                    resultht.Add("features", featurelist);
                 }
                 //点
                 else if (geometry.type == geometryType.point)
@@ -530,14 +524,7 @@ namespace sara.gisserver.console.gis.util.geometryFormatterTool
                     geoht.Add("y", geometry.coordinates[1]);
                     geoht.Add("spatialReference", wkidht);
 
-                    Hashtable featureht = new Hashtable();
-
-                    featureht.Add("geometry", geoht);
-
-                    ArrayList featurelist = new ArrayList();
-                    featurelist.Add(featureht);
-
-                    resultht.Add("features", featurelist);
+                    resultht.Add("geometry", geoht);
                 }
 
 

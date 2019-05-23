@@ -1037,51 +1037,51 @@
                 ui_btn_darwid: "btn_drawStart",
 
                 //查询的图层
-                gis_url: "http://127.0.0.1:7081/saragisserver/rest/services/HistoryGD/MapServer/0",
+                gis_url: "http://127.0.0.1:7081/saragisserver/rest/services/水域/MapServer/0",
                 //查询到的图形的业务属性关联主键
-                gis_shipidField: "SHP_ID",
-                gis_whereString: "",
+                gis_shipidField: "SHP_ID,NAME,OBJECTID",
+                gis_whereString: "1=1",
 
                 //=============query部分================
                 //ui_inputContainer: "",
                 ui_tableContainer: 'table_location_4_historygd', //查询结果列表table
-                ui_tableFields: ["xzqy", "xmmc", "dwmc", "lrr", "xmlx"],
+                ui_tableFields: ["SHP_ID", "NAME", "OBJECTID"],
                 ui_pageContainer: 'page_location_4_historygd',
                 ui_pageClickFunctionName: "commonBindTable",
                 ui_itemClickFunctionName: "commonSelectTableRow",
 
                 //=====这两个是必须用的！！
-                data_url: configObj._commonserviceurl,
-                data_url_function: 'GetCommonData',//原来缺少的
-                data_databaseNameString: 'GD_DataBaseConnectionString',
-                data_tableNameString: 'tbl_maintable',
-                data_whereString: 'shpid in ({gis_shipidField})',
-                data_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
-                data_orderByString: '',
-                data_shipidField: "shpid",
-                data_pagetSize: 10,
+                //data_url: configObj._commonserviceurl,
+                //data_url_function: 'GetCommonData',//原来缺少的
+                //data_databaseNameString: 'GD_DataBaseConnectionString',
+                //data_tableNameString: 'tbl_maintable',
+                //data_whereString: 'shpid in ({gis_shipidField})',
+                //data_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
+                //data_orderByString: '',
+                //data_shipidField: "shpid",
+                //data_pagetSize: 10,
 
                 //============search部分的
-                data_search_url: configObj._commonserviceurl,
-                data_search_url_function: 'GetCommonData',
-                data_search_databaseNameString: 'GD_DataBaseConnectionString',
-                data_search_tableNameString: 'tbl_maintable',
-                data_search_whereString: 'shpid = {gis_shipidField}',
-                data_search_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
-                data_search_orderByString: '',
-                data_search_render: [
-                    { text: "shpid", field: "shpid" },
-                    { text: "项目名称", field: "xmmc" },
-                    { text: "行政区域", field: "xzqy" },
-                    { text: "行政区域ID", field: "xzqyid" },
-                    { text: "单位名称", field: "dwmc" },
-                    //{ text: "录入人", field: "lrr" },
-                    { text: "录入日期", field: "lrrq" },
-                    { text: "备注", field: "bz" },
-                    { text: "项目类型", field: "xmlx" }
+                //data_search_url: configObj._commonserviceurl,
+                //data_search_url_function: 'GetCommonData',
+                //data_search_databaseNameString: 'GD_DataBaseConnectionString',
+                //data_search_tableNameString: 'tbl_maintable',
+                //data_search_whereString: 'shpid = {gis_shipidField}',
+                //data_search_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
+                //data_search_orderByString: '',
+                //data_search_render: [
+                //    { text: "shpid", field: "shpid" },
+                //    { text: "项目名称", field: "xmmc" },
+                //    { text: "行政区域", field: "xzqy" },
+                //    { text: "行政区域ID", field: "xzqyid" },
+                //    { text: "单位名称", field: "dwmc" },
+                //    //{ text: "录入人", field: "lrr" },
+                //    { text: "录入日期", field: "lrrq" },
+                //    { text: "备注", field: "bz" },
+                //    { text: "项目类型", field: "xmlx" }
 
-                ],
-                ui_search_renderContainer: 'div_info_content_query', //装载查询结果的div info
+                //],
+                //ui_search_renderContainer: 'div_info_content_query', //装载查询结果的div info
 
 
                 //=============3个图层4中样式
@@ -1448,11 +1448,13 @@
             //递归添加Graphic 合并图形
             AddGraphics = function (location4Json, shpidArray, i, geometryHashMap, callBackFunction)
             {
-
+                
                 if (shpidArray.length - 1 >= i)
                 {
+                    debugger
                     mapObj._geometryService.union(geometryHashMap.get(shpidArray[i]), function (geometry)
                     {
+                        debugger
                         var currentGraphics = new esri.Graphic();
                         currentGraphics.geometry = geometry;
                         currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
@@ -1604,7 +1606,7 @@
                                                 //进行查询,完成后调用showResults方法
                                                 queryTask.execute(query, function (featureSet)
                                                 {
-
+                                                    debugger
                                                     //===================指向query图层
                                                     //装载shpid查询结果
                                                     var features = featureSet.features;
@@ -1797,6 +1799,7 @@
                                                 currentDrawMapArea = null;
                                                 areasAndLengthParams = null;
                                                 GC();
+
                                             },
                                             function (error)
                                             {
