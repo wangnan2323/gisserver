@@ -331,16 +331,40 @@ namespace sara.gisserver.console.gis.server
         /// <returns></returns>
         public Stream GeometryServerQuery(string f, string servicename, string layerindex, string inSR, string geometry, string geometryType, string spatialRel, string where, string returnGeometry, string outSR, string outFields)
         {
-           
+            string stString = "";
             //转换为ST类型坐标系
 
-            string stString = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometry, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+            stString = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometry, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
+
+
+
 
             string sql = "";
-            sql += " select asText(ST_Transform(SHAPE, " + outSR + ")) as geo,name,shpid from 水域 as a";
-            sql += " where ST_Intersects(";
-            sql += " ST_GeomFromText('" + stString + "', " + inSR + "),";
-            sql += " ST_Transform(SHAPE, " + inSR + "))= 1";
+            if(outSR!=null && outSR != "")
+            {
+                sql += " select asText(ST_Transform(SHAPE, " + outSR + ")) as geo";
+            }
+            else
+            {
+                sql += " select asText(SHAPE) as geo";
+            }
+            
+            if(outFields != null && outFields != "")
+            {
+                sql += "," + outFields;
+            }
+            sql += " from " + servicename + " as a";
+            sql += " where 1=1";
+            if(geometry!=null && geometry != "")
+            {
+                sql += " and ST_Intersects(";
+                sql += " ST_GeomFromText('" + stString + "', " + inSR + "),";
+                sql += " ST_Transform(SHAPE, " + inSR + "))= 1";
+            }
+            if(where != null && where != "")
+            {
+                sql += " and " + where;
+            }
             DataSet ds = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.Query(sql,connectString);
             //ArrayList arr = new ArrayList();
 
@@ -360,7 +384,7 @@ namespace sara.gisserver.console.gis.server
             ht_fieldAliases["SHP_ID"] = "SHP_ID";
             ht["fieldAliases"] = ht_fieldAliases;
 
-            ht["geometryType"] = "esriGeometryPolygon";
+            ht["geometryType"] = geometryType;
 
             Hashtable ht_spatialReference = new Hashtable();
             ht_spatialReference["wkid"] = outSR;
@@ -368,12 +392,17 @@ namespace sara.gisserver.console.gis.server
             ht["spatialReference"] = ht_spatialReference;
 
             ArrayList arr_fields = new ArrayList();
-            Hashtable ht_field1 = new Hashtable();
-            ht_field1["name"] = "SHP_ID";
-            ht_field1["type"] = "esriFieldTypeString";
-            ht_field1["alias"] = "SHP_ID";
-            ht_field1["length"] = "100";
-            arr_fields.Add(ht_field1);
+            string[] fields = outFields.Split(',');
+            for(int i = 0; i < fields.Length; i++)
+            {
+                Hashtable ht_field1 = new Hashtable();
+                ht_field1["name"] = fields[i];
+                ht_field1["type"] = "esriFieldTypeString";
+                ht_field1["alias"] = fields[i];
+                ht_field1["length"] = "100";
+                arr_fields.Add(ht_field1);
+            }
+            
             ht["fields"] = arr_fields;
 
             ArrayList arr_features = new ArrayList();
@@ -421,10 +450,17 @@ namespace sara.gisserver.console.gis.server
                 //ht_feature["geometry"] = ht_feature_geometry;
 
                 //arr_features.Add(ht_feature);
-
-                Hashtable geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(ds.Tables[0].Rows[i]["geo"].ToString(), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries,outSR) as Hashtable;
+                Hashtable geoht = new Hashtable();
+                if (returnGeometry == "true")
+                {
+                    geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(ds.Tables[0].Rows[i]["geo"].ToString(), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries, outSR) as Hashtable;
+                }
                 Hashtable shpidht = new Hashtable();
-                shpidht.Add("SHP_ID", ds.Tables[0].Rows[i]["shpid"].ToString());
+                for(int ii = 0; ii < fields.Length; ii++)
+                {
+                    shpidht.Add(fields[ii], ds.Tables[0].Rows[i][fields[ii]].ToString());
+                }
+                
                 geoht.Add("attributes", shpidht);
                 arr_features.Add(geoht);
             }          

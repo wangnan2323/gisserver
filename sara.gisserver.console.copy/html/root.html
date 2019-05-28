@@ -177,7 +177,6 @@
     <script>
         $(document).ready(function ()
         {
-
             //初始化地图
             dojo.require("esri.map");
             dojo.require("esri.layers.ArcGISDynamicMapServiceLayer");
@@ -240,7 +239,7 @@
                 _startExtent: "",
                 //手绘图形最大面积
                 _drawMapMaxArea: 2000000000.0,
-                _geometryServiceUrl : "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer",
+                _geometryServiceUrl: "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer",
                 //获取当前时间的字符串
                 getCurrentDateTime: function ()
                 {
@@ -286,15 +285,15 @@
 
             //清理所需图层
             var _clearLayerJsonArray = [{ id: 'all', layerid: 'measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer,location1_graphicLayer,location2_graphicLayer,location3_graphicLayer,location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer,locationParm_graphicLayer', },
-                { id: 'measure', layerid: 'measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer' },
-                //{ id: 'location1', layerid: 'location1_graphicLayer' },
-                //{ id: 'location2', layerid: 'location2_graphicLayer' },
-                //{ id: 'location3', layerid: 'location3_graphicLayer' },
-                { id: 'location4', layerid: 'location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer' },
-                //{ id: 'location5', layerid: 'locationParm_graphicLayer' },
-                { id: 'location4_row', layerid: 'location4_search_graphicLayer' },
+            { id: 'measure', layerid: 'measure_point_graphicLayer,measure_line_graphicLayer,measure_polygon_graphicLayer' },
+            //{ id: 'location1', layerid: 'location1_graphicLayer' },
+            //{ id: 'location2', layerid: 'location2_graphicLayer' },
+            //{ id: 'location3', layerid: 'location3_graphicLayer' },
+            { id: 'location4', layerid: 'location4_draw_graphicLayer,location4_search_graphicLayer,location4_query_graphicLayer' },
+            //{ id: 'location5', layerid: 'locationParm_graphicLayer' },
+            { id: 'location4_row', layerid: 'location4_search_graphicLayer' },
 
-                { id: 'info', layerid: '' },
+            { id: 'info', layerid: '' },
 
             ];
             var that = {
@@ -639,9 +638,9 @@
                                         mapObj.btn_common_tab_click('info', 'result')
 
                                     }, function (error)
-                                    {
-                                        _alertMessage.show(error.message, 'error');
-                                    });
+                                        {
+                                            _alertMessage.show(error.message, 'error');
+                                        });
                                 }
 
 
@@ -698,9 +697,9 @@
                                                             mapObj.btn_common_tab_click('info', 'result')
 
                                                         }, function (error)
-                                                        {
-                                                            _alertMessage.show(error.message, 'error');
-                                                        });
+                                                            {
+                                                                _alertMessage.show(error.message, 'error');
+                                                            });
                                                     }
 
                                                     break;
@@ -710,9 +709,9 @@
 
 
                                     }, function (error)
-                                    {
-                                        _alertMessage.show(error.message, 'error');
-                                    });
+                                        {
+                                            _alertMessage.show(error.message, 'error');
+                                        });
 
                                 }
 
@@ -814,13 +813,13 @@
                                                                 mapObj.btn_common_tab_click('info', 'result');
 
                                                             }, function (error)
+                                                                {
+                                                                    _alertMessage.show(error.message, 'error');
+                                                                });
+                                                        }, function (error)
                                                             {
                                                                 _alertMessage.show(error.message, 'error');
                                                             });
-                                                        }, function (error)
-                                                        {
-                                                            _alertMessage.show(error.message, 'error');
-                                                        });
                                                     }
 
                                                     break;
@@ -830,9 +829,9 @@
 
 
                                     }, function (error)
-                                    {
-                                        _alertMessage.show(error.message, 'error');
-                                    });
+                                        {
+                                            _alertMessage.show(error.message, 'error');
+                                        });
 
                                     //$.ajax({
                                     //    url: "http://127.0.0.1:7081/saragisserver/rest/services/Utilities/Geometry/GeometryServer/project?f=json&outSR=" + _wkid + "&inSR=" + _wkid + "&geometries=" + JSON.stringify(geometry),
@@ -1038,7 +1037,7 @@
 
                 //查询的图层
                 gis_url: "http://127.0.0.1:7081/saragisserver/rest/services/水域/MapServer/0",
-                //查询到的图形的业务属性关联主键
+                //查询到的图形的业务属性关联字段，其中主键必须放在第一位
                 gis_shipidField: "SHP_ID,NAME,OBJECTID",
                 gis_whereString: "1=1",
 
@@ -1058,8 +1057,8 @@
                 //data_whereString: 'shpid in ({gis_shipidField})',
                 //data_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
                 //data_orderByString: '',
-                //data_shipidField: "shpid",
-                //data_pagetSize: 10,
+                data_shipidField: "SHP_ID",
+                data_pagetSize: 10,
 
                 //============search部分的
                 //data_search_url: configObj._commonserviceurl,
@@ -1069,19 +1068,13 @@
                 //data_search_whereString: 'shpid = {gis_shipidField}',
                 //data_search_columnsString: 'shpid^xmmc^xzqy^xzqyid^dwmc^lrr^lrrq^bz^xmlx',
                 //data_search_orderByString: '',
-                //data_search_render: [
-                //    { text: "shpid", field: "shpid" },
-                //    { text: "项目名称", field: "xmmc" },
-                //    { text: "行政区域", field: "xzqy" },
-                //    { text: "行政区域ID", field: "xzqyid" },
-                //    { text: "单位名称", field: "dwmc" },
-                //    //{ text: "录入人", field: "lrr" },
-                //    { text: "录入日期", field: "lrrq" },
-                //    { text: "备注", field: "bz" },
-                //    { text: "项目类型", field: "xmlx" }
+                data_search_render: [
+                    { text: "shpid", field: "SHP_ID" },
+                    { text: "NAME", field: "NAME" },
+                    { text: "OBJECTID", field: "OBJECTID" }
 
-                //],
-                //ui_search_renderContainer: 'div_info_content_query', //装载查询结果的div info
+                ],
+                ui_search_renderContainer: 'div_info_content_query', //装载查询结果的div info
 
 
                 //=============3个图层4中样式
@@ -1097,232 +1090,188 @@
             }];
 
             //==================通用方法  查询 列表
-            commonBindTable = function (configJsonString, operation, shpids, pageindex)
+            commonBindTable = function (configJsonString, operation, fields, pageindex)
             {
-
-                var configJson = (new Function("", "return " + configJsonString.replaceAll('`', '"').replaceAll('*', '\'')))();
-
-                if (configJson.length > 0)
+                debugger
+                var objs = (new Function("", "return " + fields.returnString2()))();
+                var configJson = (new Function("", "return " + configJsonString.replaceAll('`', '"').replaceAll('*', '\'')))()[0];
+                if (objs.length > 0)
                 {
-                    configJson = configJson[0];
-                    var data_whereString = '';
 
-                    data_whereString = configJson["data_whereString"].replaceAll('{gis_shipidField}', shpids);
-
-                    //根据input的值拼where语句
-                    if (configJson["ui_inputContainer"] != "")
+                    var tableHtmlStr = '';
+                    for (var i = configJson["data_pagetSize"] * (pageindex - 1); i < objs.length && i < (configJson["data_pagetSize"] * pageindex); i++)
                     {
-                        var text = $('#' + configJson["ui_inputContainer"] + '').val();
-                        if (text != "")
+
+                        tableHtmlStr += '<tr style="height:30px;"> ';
+
+                        var rendFieldArray = configJson["ui_tableFields"];
+                        $.each(rendFieldArray, function (ii, uu)
                         {
-                            data_whereString = data_whereString.replaceAll('{ui_inputContainer}', text);
+                            tableHtmlStr += '<td style="padding-top: 10px;"><span class="span-layer-name">' + objs[i][rendFieldArray[ii]] + '</span></td> ';
+                        });
+
+                        tableHtmlStr += '<td> '
+                        var configJsonStr = JSON.stringify(configJson).formatString2();
+                        tableHtmlStr += '<span id="' + configJson["ui_tableContainer"] + '_sp_' + objs[i][configJson["data_shipidField"]] + '" class="glyphicon glyphicon-eye-open span-layer-visable" onclick="' + configJson["ui_itemClickFunctionName"] + '(\'' + objs[i][configJson["data_shipidField"]] + '\',\'' + configJsonStr + '\',\'' + fields + '\')"></span> ';
+
+                        tableHtmlStr += '</td> ';
+                        tableHtmlStr += '</tr> ';
+                    }
+                    $('#' + configJson["ui_tableContainer"]).html(tableHtmlStr);
+
+                    var total = objs.length;
+                    var pagecount = parseInt(total / configJson["data_pagetSize"]);
+                    var count2 = total % configJson["data_pagetSize"];
+                    if (count2 > 0)
+                    {
+                        pagecount += 1;
+                    }
+                    var pagetHtmlStr = '';
+                    //总页数大于7
+                    if (pagecount > 7)
+                    {
+                        if (pageindex >= 4 && pagecount - pageindex >= 3)
+                        {
+                            var prev = pageindex - 1;
+                            var next = Number(pageindex) + 1;
+                            //如果是4的时候
+                            pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'1\')" >1</a></li>';
+                            pagetHtmlStr += '<li><a>...</a></li>';
+
+                            pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + prev + '\')" >' + prev + '</a></li>';
+                            pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '*').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
+                            pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + next + '\')" >' + next + '</a></li>';
+                            pagetHtmlStr += '<li><a>...</a></li>';
+                            pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
                         }
-                    }
-
-                    if (configJson["id"] == "location3_historygd" && configJson["gis_whereString"] != "")
-                    {
-                        data_whereString += configJson["gis_whereString"];
-                    }
-
-
-                    //图层配置
-                    var data = {
-                        databaseNameString: configJson["data_databaseNameString"],
-                        tableNameString: configJson["data_tableNameString"],
-                        whereString: data_whereString,
-                        columnsString: configJson["data_columnsString"],
-                        orderByString: configJson["data_orderByString"],
-                        pageSizeString: configJson["data_pagetSize"],
-                        pageIndexString: pageindex,
-
-                    }
-
-                    doAjaxFunction(configJson["data_url"], configJson["data_url_function"], data, {
-                        success: function (message)
+                        else if (pageindex < 4)
                         {
-                            var messagejson = (new Function("", "return " + message))();
-
-                            var tableHtmlStr = '';
-                            $.each(messagejson.rows, function (i, u)
+                            if (pageindex == 1)
                             {
-                                tableHtmlStr += '<tr style="height:30px;"> ';
-
-                                var rendFieldArray = configJson["ui_tableFields"];
-                                $.each(rendFieldArray, function (ii, uu)
-                                {
-                                    tableHtmlStr += '<td style="padding-top: 10px;"><span class="span-layer-name">' + u[rendFieldArray[ii]] + '</span></td> ';
-                                });
-
-                                tableHtmlStr += '<td> '
-                                var configJsonStr = JSON.stringify(configJson).formatString2();
-                                tableHtmlStr += '<span id="' + configJson["ui_tableContainer"] + '_sp_' + u[configJson["data_shipidField"]] + '" class="glyphicon glyphicon-eye-open span-layer-visable" onclick="' + configJson["ui_itemClickFunctionName"] + '(\'' + u[configJson["data_shipidField"]] + '\',\'' + configJsonStr + '\')"></span> ';
-
-                                tableHtmlStr += '</td> ';
-                                tableHtmlStr += '</tr> ';
-
-                            });
-
-                            $('#' + configJson["ui_tableContainer"]).html(tableHtmlStr);
-
-                            var total = parseInt(messagejson.total);
-                            var pagecount = parseInt(total / configJson["data_pagetSize"]);
-                            var count2 = total % configJson["data_pagetSize"];
-                            if (count2 > 0)
-                            {
-                                pagecount += 1;
+                                pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'1\')" >1</a></li>';
                             }
-                            var pagetHtmlStr = '';
-                            //总页数大于7
-                            if (pagecount > 7)
+                            else
                             {
-                                if (pageindex >= 4 && pagecount - pageindex >= 3)
-                                {
-                                    var prev = pageindex - 1;
-                                    var next = Number(pageindex) + 1;
-                                    //如果是4的时候
-                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
-                                    pagetHtmlStr += '<li><a>...</a></li>';
+                                pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'1\')" >1</a></li>';
+                            }
+                            if (pageindex == 2)
+                            {
+                                pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'2\')" >2</a></li>';
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'2\')" >2</a></li>';
+                            }
 
-                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + prev + '\')" >' + prev + '</a></li>';
-                                    pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '*').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
-                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + next + '\')" >' + next + '</a></li>';
-                                    pagetHtmlStr += '<li><a>...</a></li>';
-                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
-                                }
-                                else if (pageindex < 4)
-                                {
-                                    if (pageindex == 1)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
-                                    }
-                                    if (pageindex == 2)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
-                                    }
-
-                                    if (pageindex == 3)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
-                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'4\')" >4</a></li>';
-
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
-                                    }
-
-                                    pagetHtmlStr += '<li><a>...</a></li>';
-                                    pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
-                                }
-                                else if (pagecount - pageindex < 3)
-                                {
-                                    //-----------
-
-                                    if (pageindex == 1)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'1\')" >1</a></li>';
-                                    }
-                                    if (pageindex == 2)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'2\')" >2</a></li>';
-                                    }
-
-                                    if (pageindex == 3)
-                                    {
-                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
-                                        pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'4\')" >4</a></li>';
-
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'3\')" >3</a></li>';
-                                    }
-                                    if (pagecount - pageindex == 2)
-                                    {
-                                        pagetHtmlStr += '<li><a>...</a></li>';
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pageindex - 1) + '\')" >' + (pageindex - 1) + '</a></li>';
-
-                                        pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
-
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
-
-                                    }
-                                    else if (pagecount - pageindex == 1)
-                                    {
-                                        pagetHtmlStr += '<li><a>...</a></li>';
-
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
-
-                                        pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
-
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a>...</a></li>';
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
-
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
-
-                                        pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
-
-                                    }
-
-                                }
+                            if (pageindex == 3)
+                            {
+                                pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'3\')" >3</a></li>';
+                                pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'4\')" >4</a></li>';
 
                             }
                             else
                             {
-                                for (var i = 1; i <= pagecount; i++)
-                                {
-                                    if (i.toString() == pageindex)
-                                    {
-                                        pagetHtmlStr += '<li><a class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + i + '\')" >' + i + '</a></li>';
-                                    }
-                                    else
-                                    {
-                                        pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + shpids + '\',\'' + i + '\')" >' + i + '</a></li>';
-                                    }
-
-                                }
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'3\')" >3</a></li>';
                             }
 
-                            $('#' + configJson["ui_pageContainer"]).html(pagetHtmlStr);
-
-
-                        },
-                        fail: function (message)
+                            pagetHtmlStr += '<li><a>...</a></li>';
+                            pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+                        }
+                        else if (pagecount - pageindex < 3)
                         {
-                            _blockMessage.show(message, 'warning');
+                            //-----------
+
+                            if (pageindex == 1)
+                            {
+                                pagetHtmlStr += '<li><a  class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'1\')" >1</a></li>';
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'1\')" >1</a></li>';
+                            }
+                            if (pageindex == 2)
+                            {
+                                pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'2\')" >2</a></li>';
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'2\')" >2</a></li>';
+                            }
+
+                            if (pageindex == 3)
+                            {
+                                pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'3\')" >3</a></li>';
+                                pagetHtmlStr += '<li><a onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'4\')" >4</a></li>';
+
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'3\')" >3</a></li>';
+                            }
+                            if (pagecount - pageindex == 2)
+                            {
+                                pagetHtmlStr += '<li><a>...</a></li>';
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pageindex - 1) + '\')" >' + (pageindex - 1) + '</a></li>';
+
+                                pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pageindex + '\')" >' + pageindex + '</a></li>';
+
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                            }
+                            else if (pagecount - pageindex == 1)
+                            {
+                                pagetHtmlStr += '<li><a>...</a></li>';
+
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
+
+                                pagetHtmlStr += '<li><a class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a>...</a></li>';
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pagecount - 2) + '\')" >' + (pagecount - 2) + '</a></li>';
+
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + (pagecount - 1) + '\')" >' + (pagecount - 1) + '</a></li>';
+
+                                pagetHtmlStr += '<li><a  class="selected" onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + pagecount + '\')" >' + pagecount + '</a></li>';
+
+                            }
 
                         }
-                    });
+
+                    }
+                    else
+                    {
+                        for (var i = 1; i <= pagecount; i++)
+                        {
+                            if (i.toString() == pageindex)
+                            {
+                                pagetHtmlStr += '<li><a class="selected"  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + i + '\')" >' + i + '</a></li>';
+                            }
+                            else
+                            {
+                                pagetHtmlStr += '<li><a  onclick="' + configJson["ui_pageClickFunctionName"] + '(\'' + configJsonString.replaceAll('"', '`').replaceAll('\'', '*') + '\',\'\',\'' + fields + '\',\'' + i + '\')" >' + i + '</a></li>';
+                            }
+
+                        }
+                    }
+
+                    $('#' + configJson["ui_pageContainer"]).html(pagetHtmlStr);
+
+
                 }
 
             };
 
 
-            commonSelectTableRow = function (shpid, configJsonStr)
+            commonSelectTableRow = function (shpid, configJsonStr, fields)
             {
+                debugger
                 var configJson = (new Function("", "return " + configJsonStr.returnString2()))();
-
+                var objs = (new Function("", "return " + fields.returnString2()))();
                 //设置选中效果
                 var $e = $('#' + configJson["ui_tableContainer"] + '_sp_' + shpid);
                 var $tr = $e.parent().parent();
@@ -1340,40 +1289,31 @@
                     case "historygd":
                         operation = "location4_row";
                         //图层配置---点击图片上---应该使用新加的json 可查询不同的表和字段
-                        var data = {
-                            databaseNameString: configJson["data_search_databaseNameString"],
-                            tableNameString: configJson["data_search_tableNameString"],
-                            whereString: configJson["data_search_whereString"].replaceAll('{gis_shipidField}', '\'' + shpid + '\''),
-                            columnsString: configJson["data_search_columnsString"],
-                            orderByString: configJson["data_search_orderByString"],
-                            pageSizeString: "", //不需要分页
-                            pageIndexString: "",
-                        };
-                        doAjaxFunction(configJson["data_search_url"], configJson["data_search_url_function"], data, {
-                            success: function (message)
+
+                        // data_search_renderContainer  循环取
+                        if (objs.length > 0)
+                        {
+                            for (var l = 0; l < objs.length; l++)
                             {
-                                // data_search_renderContainer  循环取
-                                var messagejson = (new Function("", "return " + message))();
-                                if (messagejson.rows.length > 0)
+                                if (objs[l]["SHP_ID"] == shpid)
                                 {
-                                    messagejson = messagejson.rows[0]
                                     var render = configJson["data_search_render"];
                                     //呈现内容
                                     var resultHtml = '<div class="alert alert-success row">';
                                     $.each(render, function (i, u)
                                     {
-                                        if (render[i]["text"] == "项目名称")
+                                        if (render[i]["text"] == "NAME")
                                         {
                                             resultHtml += '<div class="col-xs-4"><a  style=" cursor:pointer;" onclick="infoObj.btn_xmmc_click(\'gd\', \'' + shpid + '\');"><u>';
                                             resultHtml += '<strong>' + render[i]["text"] + '：' + '<strong>';
-                                            resultHtml += messagejson[render[i]["field"]];
+                                            resultHtml += objs[l][render[i]["field"]];
                                             resultHtml += '</u></a></div>';
                                         }
                                         else
                                         {
                                             resultHtml += '<div class="col-xs-4">';
                                             resultHtml += '<strong>' + render[i]["text"] + '：' + '<strong>';
-                                            resultHtml += messagejson[render[i]["field"]];
+                                            resultHtml += objs[l][render[i]["field"]];
                                             resultHtml += '</div>';
                                         }
                                     })
@@ -1383,18 +1323,19 @@
                                     mapObj.btn_common_navbar_click('info', null, true);
                                     mapObj.btn_common_tab_click('info', 'query')
                                 }
-                            },
-                            fail: function (message)
-                            {
-                                _blockMessage.show('GetCommonData执行失败<br/>' + message, 'fail');
                             }
-                        }); break;
+
+
+                        }
+
+
+                        break;
                 }
 
                 toolbarObj.btn_toolbar_clear_render_click(operation);
 
                 //实例化QueryTask,查询图层2,也就是States图层
-                var queryTask = new esri.tasks.QueryTask(configObj.addClientTokenToMapURL('' + configJson["gis_url"]));
+                var queryTask = new esri.tasks.QueryTask(_location4JsonArray[0]["gis_url"]);
                 //查询参数
                 var query = new esri.tasks.Query();
                 //需要返回Geometry
@@ -1402,19 +1343,24 @@
                 //需要返回的字段
                 query.outFields = [configJson["gis_shipidField"]];
                 //查询条件
-                query.where = "" + configJson["gis_shipidField"] + " = '" + shpid + "'";//应该采用json中的关键字
+                var key = configJson["gis_shipidField"].split(',')[0];
+                query.where = "" + key + " = '" + shpid + "'";//应该采用json中的关键字
+                query.geometryType = "";
 
                 //进行查询,完成后调用showResults方法
                 queryTask.execute(query, function (results)
                 {
+                    debugger
                     var features = results.features;
 
                     if (features.length > 0)
                     {
+                        //此处自行添加，默认显示第一条
+                        //features = features[0];
                         var ext = new esri.geometry.Extent();
                         $.each(features, function (i, u)
                         {
-
+                            debugger
                             var feature = features[i];
                             var geometry = feature["geometry"];
 
@@ -1433,28 +1379,28 @@
                         });
 
                         //设置地图视图范围
-                        ext = mapObj.setExt(ext);
+                        //ext = mapObj.setExt(ext);
                         mapObj._mapControl.setExtent(ext);
                     }
 
                 }, function (error)
-                {
-                    _alertMessage.show(error.message, 'error');
+                    {
+                        _alertMessage.show(error.message, 'error');
 
-                });
+                    });
             };
 
 
             //递归添加Graphic 合并图形
             AddGraphics = function (location4Json, shpidArray, i, geometryHashMap, callBackFunction)
             {
-                
+
                 if (shpidArray.length - 1 >= i)
                 {
-                    debugger
+
                     mapObj._geometryService.union(geometryHashMap.get(shpidArray[i]), function (geometry)
                     {
-                        debugger
+
                         var currentGraphics = new esri.Graphic();
                         currentGraphics.geometry = geometry;
                         currentGraphics.symbol = configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]);
@@ -1470,9 +1416,9 @@
                         currentGraphics = null;
 
                     }, function (error)
-                    {
-                        _alertMessage.show(error.message, 'error');
-                    });
+                        {
+                            _alertMessage.show(error.message, 'error');
+                        });
                 }
                 else
                 {
@@ -1549,7 +1495,7 @@
                                 {
                                     if (geometries[0].type == 'polygon' || geometries[0].type == 'freehand_polygon')
                                     {
-                                     
+
                                         mapObj._geometryService.simplify(geometries, function (simplifiedGeometries)
                                         {
                                             //对绘制的图形进行简单化（容错）
@@ -1606,24 +1552,37 @@
                                                 //进行查询,完成后调用showResults方法
                                                 queryTask.execute(query, function (featureSet)
                                                 {
-                                                    debugger
+
                                                     //===================指向query图层
                                                     //装载shpid查询结果
                                                     var features = featureSet.features;
                                                     if (features.length > 0)
                                                     {
-                                                        var shpids = '';
+                                                        debugger
+                                                        var fields = location4Json["gis_shipidField"].split(',');
+                                                        var fieldstr = "";
+                                                        var fieldtemp = "";
+
                                                         $.each(features, function (i, u)
                                                         {
-                                                            shpids += '‘' + u.attributes.SHP_ID + '’' + ',';
+                                                            for (var i = 0; i < fields.length; i++)
+                                                            {
+                                                                fieldtemp += "\"" + fields[i] + "\":\"" + u.attributes[fields[i]] + "\",";
+                                                            }
+                                                            fieldtemp = "{" + fieldtemp.trimEnd(',') + "},";
+                                                            fieldstr += fieldtemp;
+                                                            fieldtemp = "";
                                                         });
 
-                                                        shpids = shpids.trimEnd(',');
+                                                        fieldstr = "[" + fieldstr.trimEnd(',') + "]";
+                                                        var obj = JSON.parse(fieldstr);
 
-                                                        //if (shpids != '')
-                                                        //{
-                                                        //    commonBindTable(JSON.stringify(_location4Json), 'historygd', shpids, 1);
-                                                        //}
+                                                        fieldstr = JSON.stringify(obj).formatString2();
+
+                                                        if (fieldstr != '')
+                                                        {
+                                                            commonBindTable(JSON.stringify(_location4Json), 'historygd', fieldstr, 1);
+                                                        }
                                                         //===================指向search图层
                                                         //装载图形
                                                         //组织数据
@@ -1674,10 +1633,10 @@
                                                             }
                                                             ia++;
                                                         });
-                                                                //_alertMessage.hidden('查询图形中', 'loading');
+                                                        //_alertMessage.hidden('查询图形中', 'loading');
 
-                                                                ////
-                                                                //$('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
+                                                        ////
+                                                        //$('#' + location4Json["ui_btn_darwid"]).removeClass('hidden');
 
 
                                                         //递归添加Graphic
@@ -1692,7 +1651,7 @@
                                                             }
                                                         });
 
-                                                        
+
                                                         //开启Graphic的click响应
                                                         graphic = new esri.Graphic(geometry, configObj._symbolHashMap.get(location4Json["gis_symbol_draw"]));
                                                         var highLayer = mapObj._mapControl.getLayer(location4Json["gis_layerid_draw"]);
@@ -1702,7 +1661,7 @@
 
                                                         dojo.connect(highLayer, "onClick", function (evt)
                                                         {
-                                                           
+
                                                             toolbarObj.btn_toolbar_clear_render_click("location4_row");
 
                                                             if (locationObj._lastHightLightGraphic != null)
@@ -1770,10 +1729,10 @@
 
 
                                                         });
-
+                                                        debugger
                                                         //定位
-                                                        //mapObj._mapControl.setExtent(rExtent);
-                                                        
+                                                        mapObj._mapControl.setExtent(rExtent);
+
                                                     }
                                                     else
                                                     {
@@ -1786,9 +1745,9 @@
 
 
                                                 }, function (error)
-                                                {
-                                                    _alertMessage.show(error.message, 'error');
-                                                });
+                                                    {
+                                                        _alertMessage.show(error.message, 'error');
+                                                    });
 
                                                 mapObj._drawBar = null;
                                                 currentGraphic = null;
@@ -1801,15 +1760,15 @@
                                                 GC();
 
                                             },
+                                                function (error)
+                                                {
+                                                    _alertMessage.show(error.message, 'error');
+                                                });
+                                        },
                                             function (error)
                                             {
                                                 _alertMessage.show(error.message, 'error');
                                             });
-                                        },
-                                        function (error)
-                                        {
-                                            _alertMessage.show(error.message, 'error');
-                                        });
                                     }
                                 }
                                 else
@@ -1818,9 +1777,9 @@
                                 }
 
                             }, function (error)
-                            {
-                                _alertMessage.show(error.message, 'error');
-                            });
+                                {
+                                    _alertMessage.show(error.message, 'error');
+                                });
                         });
 
                         //开始绘图
@@ -1937,14 +1896,14 @@
                         f_opacity: "100",
                         f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjwp/MapServer"
                     },
-                {
-                    f_visible: "true",
-                    f_id: "3",
-                    f_description: "天津道路tpk",
-                    f_value1: "0",
-                    f_opacity: "100",
-                    f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjroadtpk/MapServer"
-                }];
+                    {
+                        f_visible: "true",
+                        f_id: "3",
+                        f_description: "天津道路tpk",
+                        f_value1: "0",
+                        f_opacity: "100",
+                        f_url: "http://127.0.0.1:7081/saragisserver/rest/services/tjroadtpk/MapServer"
+                    }];
 
                 /*
                 , {
@@ -1962,16 +1921,16 @@
 
 
                     baseserver = new esri.layers.ArcGISTiledMapServiceLayer(u["f_url"],
-                             {
-                                 id: u["f_id"],
-                                 visible: u["f_visible"] == "true" ? true : false,
-                                 opacity: Number(u["f_opacity"]) / 100,
-                                 copyright: "",
-                                 description: "",
-                                 disableClientCaching: true,
-                                 minScale: 0,
+                        {
+                            id: u["f_id"],
+                            visible: u["f_visible"] == "true" ? true : false,
+                            opacity: Number(u["f_opacity"]) / 100,
+                            copyright: "",
+                            description: "",
+                            disableClientCaching: true,
+                            minScale: 0,
 
-                             });
+                        });
                     mapObj._mapControl.addLayer(baseserver);
 
                 });
@@ -2674,7 +2633,8 @@
         })();
 
 
-    </script>
+
+/**/</script>
 
 
 
