@@ -332,12 +332,21 @@ namespace sara.gisserver.console.gis.server
         public Stream GeometryServerQuery(string f, string servicename, string layerindex, string inSR, string geometry, string geometryType, string spatialRel, string where, string returnGeometry, string outSR, string outFields)
         {
             string stString = "";
-            //×ª»»ÎªSTÀàÐÍ×ø±êÏµ
-
             stString = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geometry, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.STGeometries).ToString();
-
-
-
+            if (stString.IndexOf("LINESTRING") != -1)
+            {
+                geometryType = "esriGeometryPolyline";
+            }
+            else if (stString.IndexOf("POLYGON") != -1)
+            {
+                geometryType = "esriGeometryPolygon";
+            }
+            else if (stString.IndexOf("POINT") != -1)
+            {
+                geometryType = "esriGeometryPoint";
+            }
+            // ²âÊÔ
+            //geometryType = "esriGeometryPolyline";
 
             string sql = "";
             if(outSR!=null && outSR != "")
@@ -366,16 +375,7 @@ namespace sara.gisserver.console.gis.server
                 sql += " and " + where;
             }
             DataSet ds = sara.gisserver.console.doconsole.AccessSQLiteDataFactory.Query(sql,connectString);
-            //ArrayList arr = new ArrayList();
 
-            //for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-            //{
-            //    Hashtable ht = new Hashtable();
-            //    ht["objectid"] = ds.Tables[0].Rows[i]["objectid"].ToString();
-            //    ht["name"] = ds.Tables[0].Rows[i]["name"].ToString();
-            //    ht["geo"] = TransformToGeometries(ds.Tables[0].Rows[i]["geo"].ToString(), outSR, "2");
-            //    arr.Add(ht);
-            //}
 
             Hashtable ht = new Hashtable();
             ht["displayFieldName"] = "YSDM";
@@ -409,63 +409,52 @@ namespace sara.gisserver.console.gis.server
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
             {
-                //Hashtable ht = new Hashtable();
-                //ht["objectid"] = ds.Tables[0].Rows[i]["objectid"].ToString();
-                //ht["name"] = ds.Tables[0].Rows[i]["name"].ToString();
-                //ht["geo"] = TransformToGeometries(ds.Tables[0].Rows[i]["geo"].ToString(), outSR, "2");
-                //arr.Add(ht);
-                //Hashtable ht_feature = new Hashtable();
 
-                //Hashtable ht_feature_attributes = new Hashtable();
-                //ht_feature_attributes["SHP_ID"] = ds.Tables[0].Rows[i]["objectid"].ToString();
-                //ht_feature["attributes"] = ht_feature_attributes;
-
-                //Hashtable ht_feature_geometry = new Hashtable();
-
-                //ht_feature_geometry["type"] = "polygon";
-                //ArrayList arr_feature_geometry_ring1 = new ArrayList();
-                //ArrayList arr_feature_geometry_ring2 = new ArrayList();
-                //string ringsString = ds.Tables[0].Rows[i]["geo"].ToString().Replace("MULTIPOLYGON(((", "").Replace(")))", "");
-                //string[] ringArr = ringsString.Split(',');
-
-                //for (int ii = 0; ii < ringArr.Length; ii++)
-                //{
-                //    ArrayList arr_feature_geometry_ring3 = new ArrayList();
-                //    string[] aa = ringArr[ii].Trim().Split(' ');
-                //    arr_feature_geometry_ring3.Add(aa[0]);
-                //    arr_feature_geometry_ring3.Add(aa[1]);
-                //    arr_feature_geometry_ring2.Add(arr_feature_geometry_ring3);
-                //}
-
-
-                //arr_feature_geometry_ring1.Add(arr_feature_geometry_ring2);
-                //ht_feature_geometry["rings"] = arr_feature_geometry_ring1;
-                //ht_feature_geometry["_ring"] = 0;
-
-                //Hashtable ht_feature_geometry_spatialReference = new Hashtable();
-                //ht_feature_geometry_spatialReference["wkid"] = outSR;
-                //ht_feature_geometry_spatialReference["latestWkid"] = outSR;
-                //ht_feature_geometry["spatialReference"] = ht_feature_geometry_spatialReference;
-
-                //ht_feature["geometry"] = ht_feature_geometry;
-
-                //arr_features.Add(ht_feature);
                 Hashtable geoht = new Hashtable();
                 if (returnGeometry == "true")
                 {
                     geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(ds.Tables[0].Rows[i]["geo"].ToString(), sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries, outSR) as Hashtable;
                 }
                 Hashtable shpidht = new Hashtable();
-                for(int ii = 0; ii < fields.Length; ii++)
+                for (int ii = 0; ii < fields.Length; ii++)
                 {
                     shpidht.Add(fields[ii], ds.Tables[0].Rows[i][fields[ii]].ToString());
                 }
-                
+
                 geoht.Add("attributes", shpidht);
                 arr_features.Add(geoht);
-            }          
-            
-         
+            }
+            #region ²âÊÔ´úÂë
+            //Ïß²âÊÔ
+            //string geostrs = "{\"type\":\"polyline\",\"paths\":[[[13033898.876318999, 4751966.501175452],[13061874.82867137, 4751660.753062312]]],\"_path\":0,\"spatialReference\":{\"wkid\":3857}}";
+            //string geostrs2 = "{\"type\":\"polyline\",\"paths\":[[[13046029.813974706,4751971.390037942],[13046068.032488849,4737983.413861756]]],\"_path\":0,\"spatialReference\":{\"wkid\":3857}}";
+            //µã²âÊÔ
+            //string geostrs = "{\"type\":\"point\",\"x\":13045416.981018737,\"y\":4744198.513530436,\"spatialReference\":{\"wkid\":3857}}";
+            //string geostrs2 = "{ \"type\":\"point\",\"x\":13050041.42122997,\"y\":4742607.145360504,\"spatialReference\":{ \"wkid\":3857}}";
+
+            //Hashtable geoht = new Hashtable();
+            //if (returnGeometry == "true")
+            //{
+            //    geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geostrs, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries, outSR) as Hashtable;
+            //}
+            //Hashtable shpidht = new Hashtable();
+            //shpidht.Add("SHP_ID", "1");
+            //shpidht.Add("OBJECTID", "1");
+            //shpidht.Add("NAME", "²âÊÔ");
+
+            //geoht.Add("attributes", shpidht);
+            //arr_features.Add(geoht);
+
+            //geoht = sara.gisserver.console.gis.util.geometryFormatterTool.geometryFormatterTool.Transform(geostrs2, sara.gisserver.console.gis.util.geometryFormatterTool.objectType.hashTableGeometries, outSR) as Hashtable;
+            //shpidht = new Hashtable();
+            //shpidht.Add("SHP_ID", "2");
+            //shpidht.Add("OBJECTID", "2");
+            //shpidht.Add("NAME", "²âÊÔ2");
+
+            //geoht.Add("attributes", shpidht);
+            //arr_features.Add(geoht);
+            #endregion
+
             ht["features"] = arr_features;
 
 
@@ -532,7 +521,7 @@ namespace sara.gisserver.console.gis.server
                        }
                    }]
                }
-                            */ 
+                            */
             #endregion
 
 
